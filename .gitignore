@@ -1,0 +1,12 @@
+.DS_Store
+
+# Agent 根目录只保存源码、规则和文档
+/.cache/
+/.runtime/
+/runs/
+/output/
+/renders/
+
+# 本地依赖和日志
+node_modules/
+*.log
