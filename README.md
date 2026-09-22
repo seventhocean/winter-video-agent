@@ -2,7 +2,7 @@
 
 Winter Video Agent 是一个在 Codex 中直接使用的个人视频制作 Agent。用户可以提供口播稿、真人口播视频、配音、产品资料、文章或主题，由 Agent 选择合适的成熟流程，完成分镜、素材编排、动效、预览、渲染、质检和交付。
 
-当前仓库处于架构与上游吸收阶段，尚未提供网页界面，也尚未开始实现统一命令。旧的 `Winter-video-workspace` 只作为历史项目存在，不是本项目的运行依赖。
+当前已有第一版口播图片动效预览命令：环境检查、外部项目创建、素材登记、项目查询和关键帧合成。使用 Python 标准库与本机 FFmpeg，尚未完成完整 TalkCraft 流程吸收。旧的 `Winter-video-workspace` 不是本项目的运行依赖。
 
 ## 三条视频流程
 
@@ -44,4 +44,4 @@ git submodule update --init --recursive
 - [三条流程契约](docs/workflow-contracts.md)
 - [协作约定](AGENTS.md)
 
-下一阶段先实现最小公共底座，包括外部项目目录、素材登记、运行检查和统一状态，再用 TalkCraft 打通第一条真人口播垂直流程。
+运行 `python3 -B -m core.cli --help` 查看命令。具体使用方式与当前能力边界见 [口播图片动效预览](docs/talking-head-preview.md)。

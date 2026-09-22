@@ -1,0 +1,34 @@
+<!doctype html><html><meta charset="utf-8"><style>
+*{box-sizing:border-box}body{margin:0;background:transparent;font-family:'PingFang SC',sans-serif;color:#fff}#stage{position:relative;width:1280px;height:960px;overflow:hidden}#shade{position:absolute;left:840px;top:120px;width:440px;height:720px;background:linear-gradient(90deg,transparent,#071a21d9 25%,#071a21eb)}
+.layer{position:absolute;transform-origin:center}.eyebrow{font-size:13px;letter-spacing:3px;color:#73e6ce}.title{font-size:29px;font-weight:650;line-height:1.3}.muted{color:#b9cbd0;font-size:17px}.mint{color:#73e6ce}.pill{padding:9px 15px;border:1px solid #7ce2ce55;border-radius:8px;background:#0c282ee8;font-size:20px}.caption{font-size:15px;color:#b7cbd0}.step{position:absolute;width:95px;height:50px;border-radius:8px;border:1px solid #577276;background:#10282c;color:#adc2c6;text-align:center;line-height:48px;font-size:21px;font-weight:600}.line{height:3px;background:#6ee4ca;transform-origin:left center}.dot{width:8px;height:8px;border-radius:50%;background:#b8ffee;box-shadow:0 0 12px #71eecf}img{display:block;width:100%;height:100%;object-fit:contain}#real img{object-fit:cover;object-position:top}#real{overflow:hidden;border:1px solid #6f909b;border-radius:10px;box-shadow:0 12px 35px #0008}#request{background:#e1fff5;color:#12352e;padding:16px 19px;border-radius:12px;font-size:25px;font-weight:600;box-shadow:0 8px 28px #0003}.rule{height:2px;background:#6ee4ca}
+</style><div id="stage">
+<div id="shade"></div>
+<div class="layer" id="chapter" style="left:52px;top:40px"><div class="eyebrow">VIBE CODING · 03</div><div style="font-size:22px;margin-top:8px">让服务器听懂人话</div></div>
+<div class="layer" id="head" style="left:908px;top:163px;width:332px"><div class="eyebrow" id="tag"></div><div class="title" id="heading" style="margin-top:10px"></div><div class="rule" style="width:45px;margin-top:17px"></div></div>
+<div class="layer" id="server" style="left:908px;top:289px;width:330px;height:330px"><img id="serverImage"></div>
+<div class="layer pill" id="novice" style="left:935px;top:638px">零基础 · 从需求出发</div>
+<div class="layer" id="real" style="left:898px;top:325px;width:352px;height:270px"><img id="realImage"></div>
+<div class="layer caption" id="realLabel" style="left:907px;top:606px">实际终端画面 · OpenCode</div>
+<div class="layer pill" id="question" style="left:966px;top:663px;border-color:#efb764;color:#ffd392">下一步，输入什么？</div>
+<div class="layer" id="request" style="left:901px;top:297px;width:345px">“帮我部署这个网页”</div>
+<div class="layer caption" id="example" style="left:909px;top:358px">自然语言需求示意</div>
+<div class="layer" id="assistant" style="left:944px;top:403px;width:265px;height:265px"><img id="assistantImage"></div>
+<div class="layer" id="flow" style="left:901px;top:709px;width:345px;height:80px"><div class="step" id="s0" style="left:0">需求</div><div class="line layer" id="l0" style="left:97px;top:24px;width:26px"></div><div class="step" id="s1" style="left:125px">AI</div><div class="line layer" id="l1" style="left:222px;top:24px;width:26px"></div><div class="step" id="s2" style="left:250px">执行</div><div class="dot layer" id="packet" style="top:21px"></div></div>
+<div class="layer caption" id="result" style="left:934px;top:787px;color:#87f3d6">需求 → 理解 → 执行操作</div>
+</div><script>
+const el=id=>document.getElementById(id), clamp=x=>Math.max(0,Math.min(1,x)), ease=x=>1-Math.pow(1-clamp(x),3);
+function reveal(id,t,start,end,dx=0,dy=18){const p=ease((t-start)/.45),q=end===null?1:1-ease((t-end)/.3);el(id).style.opacity=p*q;el(id).style.transform=`translate(${dx*(1-p)}px,${dy*(1-p)}px)`;return p*q}
+window.setup=cfg=>{el('serverImage').src=cfg.terminal;el('assistantImage').src=cfg.assistant;el('realImage').src=cfg.real;};
+window.seek=t=>{
+ reveal('chapter',t,0,null);reveal('head',t,.12,null);el('shade').style.opacity=ease(t/.5);
+ el('tag').textContent=t<4?'01 / 起点':t<6.8?'02 / 卡点':'03 / 交给助手';
+ el('heading').innerHTML=t<4?'不懂服务器<br><span class="mint">也想做出产品</span>':t<6.8?'打开终端之后<br><span style="color:#ffd392">面对黑框发懵</span>':'用人话提需求<br><span class="mint">让 AI 执行操作</span>';
+ const a=reveal('server',t,.25,4.05,95,5),p=ease((t-.25)/.65);el('server').style.transform=`translateY(${(1-p)*25}px) scale(${.55+.45*p+.035*Math.sin(clamp((t-.25)/.8)*Math.PI)})`;
+ reveal('novice',t,.9,3.9);reveal('real',t,4.05,6.65,110,0);reveal('realLabel',t,4.45,6.6);reveal('question',t,5.25,6.55);
+ reveal('request',t,6.8,null,70,0);reveal('example',t,7.0,null);reveal('assistant',t,7.35,null,85,20);
+ const robot=ease((t-7.35)/.55);el('assistant').style.transform=`translate(${85*(1-robot)}px,${20*(1-robot)}px) scale(${.72+.28*robot})`;
+ reveal('flow',t,7.25,null,0,10);for(let i=0;i<3;i++){const on=clamp((t-(7.3+i*.62))/.35);el('s'+i).style.borderColor=`rgba(110,228,202,${.25+.75*on})`;el('s'+i).style.color=on>.5?'#b7ffe9':'#78989e';el('s'+i).style.background=on>.5?'#19483f':'#10282c';}
+ el('l0').style.transform=`scaleX(${ease((t-7.65)/.5)})`;el('l1').style.transform=`scaleX(${ease((t-8.3)/.5)})`;
+ el('packet').style.opacity=t>7.5&&t<8.95?1:0;el('packet').style.left=`${95+155*clamp((t-7.5)/1.4)}px`;reveal('result',t,8.7,null);
+};
+</script></html>
