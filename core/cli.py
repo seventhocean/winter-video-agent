@@ -175,7 +175,16 @@ def main():
     ren = sub.add_parser('preview'); ren.add_argument('project')
     ren.add_argument('--output', default='preview-v1.mp4')
     args = parser.parse_args()
+    task_lock = None
     try:
+        if args.command in ('asset', 'preview'):
+            task_lock = external(args.project) / '.semantic.lock'
+            try:
+                with task_lock.open('x') as stream:
+                    stream.write(json.dumps({'command': args.command}))
+            except FileExistsError:
+                task_lock = None
+                raise ValueError('Project is busy: .semantic.lock exists')
         if args.command == 'doctor':
             result = {name: shutil.which(name) for name in ('ffmpeg', 'ffprobe', 'python3')}
             print(json.dumps(result, indent=2)); return 0 if all(result.values()) else 1
@@ -185,6 +194,9 @@ def main():
     except (ValueError, KeyError, OSError, StopIteration, subprocess.CalledProcessError) as error:
         print(json.dumps({'error': str(error)}, ensure_ascii=False), file=sys.stderr)
         return 1
+    finally:
+        if task_lock is not None:
+            task_lock.unlink(missing_ok=True)
 
 
 if __name__ == '__main__':

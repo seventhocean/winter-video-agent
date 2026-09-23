@@ -1,5 +1,13 @@
 # 口播图片动效预览 v0
 
+## 当前阶段：数据驱动配方
+
+2026-09-23：渲染入口改为读取外部项目 input/semantic-plan.json，使用 library/recipes/progressive-explanation/stage.html。文案、素材、画幅、坐标和时序都来自计划，具体命令见 [Skill 执行说明](../skills/winter-video-agent/references/execution.md)。
+
+计划按内容哈希保存版本，预览绑定计划和素材指纹。用户反馈只作用于对应版本；修改计划不会继承旧版批准。所有项目写入命令与语义渲染互斥，输入变更会在渲染前报告。浏览器做文字溢出检查，FFmpeg 保留源视频比例。
+
+原 V2 专用模板保留作历史参考，不再由当前渲染入口加载。下面 V0/V2 的说明是阶段记录，不能用它们推断当前命令仍写死内容。
+
 ## 递进解释样片 v2
 
 新增 `workflows/talking-head/semantic-stage.html` 和 `scripts/render-semantic-preview.mjs`，用于 1280×960、开头约 9.6 秒的已登记口播样例。当前是特定样片 profile，内容、坐标与语义时间点写在模板内，尚不是自动规划器。

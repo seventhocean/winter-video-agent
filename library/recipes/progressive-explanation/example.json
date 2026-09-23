@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "recipe": "progressive-explanation",
+  "intent": "解释资料整理过程；通用配方示例，无需服务器或机器人资产",
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "beats": [
+    {
+      "id": "process",
+      "start": 0,
+      "end": 6,
+      "purpose": "资料先采集、再整理、最后形成输出"
+    }
+  ],
+  "layers": [
+    {
+      "id": "title",
+      "type": "text",
+      "beat": "process",
+      "text": "让资料变成可用知识",
+      "x": 700,
+      "y": 100,
+      "width": 530,
+      "height": 80,
+      "start": 0,
+      "end": 6,
+      "style": {
+        "fontSize": 36,
+        "color": "#ffe6ad"
+      },
+      "motion": {
+        "kind": "reveal",
+        "duration": 0.4
+      }
+    },
+    {
+      "id": "step0",
+      "type": "text",
+      "beat": "process",
+      "text": "采集资料",
+      "x": 740,
+      "y": 220,
+      "width": 450,
+      "height": 65,
+      "start": 0.5,
+      "end": 6,
+      "style": {
+        "fontSize": 30,
+        "padding": 12,
+        "background": "#26373d",
+        "color": "#ffffff",
+        "radius": 10
+      },
+      "motion": {
+        "kind": "reveal",
+        "duration": 0.5
+      }
+    },
+    {
+      "id": "step1",
+      "type": "text",
+      "beat": "process",
+      "text": "分类整理",
+      "x": 740,
+      "y": 340,
+      "width": 450,
+      "height": 65,
+      "start": 2,
+      "end": 6,
+      "style": {
+        "fontSize": 30,
+        "padding": 12,
+        "background": "#26373d",
+        "color": "#ffffff",
+        "radius": 10
+      },
+      "motion": {
+        "kind": "reveal",
+        "duration": 0.5
+      }
+    },
+    {
+      "id": "step2",
+      "type": "text",
+      "beat": "process",
+      "text": "形成输出",
+      "x": 740,
+      "y": 460,
+      "width": 450,
+      "height": 65,
+      "start": 3.5,
+      "end": 6,
+      "style": {
+        "fontSize": 30,
+        "padding": 12,
+        "background": "#26373d",
+        "color": "#ffffff",
+        "radius": 10
+      },
+      "motion": {
+        "kind": "reveal",
+        "duration": 0.5
+      }
+    },
+    {
+      "id": "link0",
+      "type": "line",
+      "beat": "process",
+      "x": 960,
+      "y": 289,
+      "width": 3,
+      "height": 42,
+      "start": 1.5,
+      "end": 6,
+      "style": {
+        "color": "#ffd392"
+      },
+      "motion": {
+        "kind": "draw",
+        "duration": 0.4
+      }
+    },
+    {
+      "id": "link1",
+      "type": "line",
+      "beat": "process",
+      "x": 960,
+      "y": 409,
+      "width": 3,
+      "height": 42,
+      "start": 3,
+      "end": 6,
+      "style": {
+        "color": "#ffd392"
+      },
+      "motion": {
+        "kind": "draw",
+        "duration": 0.4
+      }
+    }
+  ]
+}

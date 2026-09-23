@@ -1,0 +1,31 @@
+<!doctype html><html><meta charset="utf-8"><style>
+*{box-sizing:border-box}body{margin:0;background:transparent;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:white}#stage{position:relative;overflow:hidden}.layer{position:absolute;white-space:pre-wrap;line-height:1.3;transform-origin:center;overflow:hidden}img{display:block;width:100%;height:100%}
+</style><div id="stage"></div><script>
+const clamp=x=>Math.max(0,Math.min(1,x)),ease=x=>1-Math.pow(1-clamp(x),3);
+let layers=[];
+window.setup=({plan,assets})=>{
+ const stage=document.getElementById('stage');stage.replaceChildren();stage.style.width=plan.canvas.width+'px';stage.style.height=plan.canvas.height+'px';
+ layers=plan.layers.map(layer=>{
+  const node=document.createElement('div'),s=layer.style||{};node.className='layer';node.dataset.layer=layer.id;
+  Object.assign(node.style,{left:layer.x+'px',top:layer.y+'px',width:layer.width+'px',height:layer.height+'px',fontSize:(s.fontSize||24)+'px',fontWeight:s.fontWeight||400,color:s.color||'#ffffff',background:s.background||'transparent',borderRadius:(s.radius||0)+'px',padding:(s.padding||0)+'px',border:s.borderWidth?s.borderWidth+'px solid '+(s.borderColor||'#ffffff'):'none',textAlign:s.align||'left',opacity:0});
+  if(layer.type==='image'){const im=document.createElement('img');im.src=assets[layer.asset];im.style.objectFit=s.fit||'contain';node.append(im);}
+  if(layer.type==='text')node.textContent=layer.text;
+  if(layer.type==='line'){node.style.background=s.color||'#73e6ce';node.style.transformOrigin='left center';}
+  stage.append(node);return {layer,node};
+ });
+};
+window.seek=t=>{
+ for(const {layer:l,node:n} of layers){
+  const m=l.motion||{kind:'reveal',duration:.35},p=ease((t-l.start)/m.duration);
+  const visible=t>=l.start&&t<l.end;
+  const fade=l.end<window.planDuration?clamp((l.end-t)/.15):1;
+  n.style.opacity=visible?(m.kind==='none'?1:p)*fade:0;
+  let transform='none';
+  if(m.kind==='reveal')transform='translateY('+(12*(1-p))+'px)';
+  if(m.kind==='pop')transform='scale('+(.78+.22*p+.06*Math.sin(Math.PI*clamp((t-l.start)/m.duration)))+')';
+  if(m.kind==='draw')transform='scaleX('+p+')';
+  n.style.transform=transform;
+ }
+};
+window.measure=()=>layers.filter(({layer:l,node:n})=>l.type==='text'&&(n.scrollHeight>n.clientHeight||n.scrollWidth>n.clientWidth)).map(({layer:l})=>l.id);
+</script></html>
