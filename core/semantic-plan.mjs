@@ -30,6 +30,18 @@ export function validatePlan(plan,project) {
  assert(finite(project.format.fps)&&project.format.fps>0&&project.format.fps<=60,'Invalid fps');
  assert(finite(project.clip?.duration)&&project.clip.duration>0&&finite(project.clip.start)&&project.clip.start>=0,'Invalid clip');
  const interval=o=>finite(o.start)&&finite(o.end)&&o.start>=0&&o.end>o.start&&o.end<=project.clip.duration;
+ if(plan.no_mask!==undefined)assert(typeof plan.no_mask==='boolean','Invalid no_mask');
+ if(plan.shots!==undefined) {
+  assert(Array.isArray(plan.shots)&&plan.shots.length>0,'Missing shots');
+  let end=0;const shotIds=new Set();
+  for(const shot of plan.shots) {
+   assert(typeof shot.id==='string'&&/^[a-z0-9-]+$/.test(shot.id)&&!shotIds.has(shot.id),'Invalid shot ID');shotIds.add(shot.id);
+   assert(interval(shot)&&Math.abs(shot.start-end)<1e-8,'Shots must cover clip without gaps or overlaps');
+   assert([shot.start,shot.end].every(t=>Math.abs(t*project.format.fps-Math.round(t*project.format.fps))<1e-6),'Shot must start/end on frame boundary');
+   end=shot.end;
+  }
+  assert(Math.abs(end-project.clip.duration)<1e-8,'Shots must cover entire clip');
+ }
  assert(Array.isArray(plan.beats)&&plan.beats.length>0,'Missing semantic beats');
  const ids=new Set();
  for(const beat of plan.beats) {
@@ -52,6 +64,7 @@ export function validatePlan(plan,project) {
   if(l.type==='text')assert(typeof l.text==='string'&&l.text.length>0,'Missing text: '+l.id);
   if(l.type==='image')assert(project.assets?.[l.asset]?.path&&fs.existsSync(project.assets[l.asset].path),'Missing asset: '+l.asset);
   const s=l.style||{},nums=['fontSize','fontWeight','radius','borderWidth','padding'],colors=['color','background','borderColor'];
+  if(plan.no_mask)assert(l.type!=='panel'&&!s.background,'no_mask forbids panels and background fills: '+l.id);
   for(const k of Object.keys(s))assert([...nums,...colors,'align','fit'].includes(k),'Unknown style: '+k);
   for(const k of nums)if(k in s)assert(finite(s[k])&&s[k]>=0,'Invalid '+k);
   for(const k of colors)if(k in s)assert(/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s[k]),'Use hex colors: '+k);

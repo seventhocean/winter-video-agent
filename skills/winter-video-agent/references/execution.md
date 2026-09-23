@@ -50,3 +50,11 @@ node scripts/semantic-plan.mjs review PROJECT preview-v3.mp4 changes-requested '
 ~~~
 
 只选择符合用户原话的一条。记录绑定产物及当时的计划哈希；批准旧版不会批准新计划。inspect 可在新会话恢复这些决定。仅生成静帧不等于用户看过动态效果。
+
+## 连续分镜与无覆层底板
+
+计划可声明 `no_mask: true`，拒绝 panel 图层和 style.background；文字使用阴影保持可读。图片仍须人工确认没有伪装成遮罩的底图。
+
+可选 `shots` 数组：`[{"id":"opening","start":0,"end":6}]`。区间以选段内秒数计，必须连续覆盖整个 clip，边界对齐帧。图层时间始终以整个选段为准。
+
+原渲染命令末尾加 `--shot opening` 可只预览指定分镜；输出仍选择新版本名，快照记录 render_range。省略参数则输出整个选段；原单帧秒数参数仍可用。当前没有分镜缓存拼接。

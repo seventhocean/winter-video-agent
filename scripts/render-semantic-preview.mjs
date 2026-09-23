@@ -7,7 +7,7 @@ import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {read,atomic,hash,projectRoot,validatePlan,lockProject} from '../core/semantic-plan.mjs';
 
-const [projectArg,runtimeArg,browserPath,version='preview-v3',stillArg]=process.argv.slice(2);
+const [projectArg,runtimeArg,browserPath,version='preview-v3',stillArg,shotId]=process.argv.slice(2);
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 let unlock;
 async function fileHash(file) {
@@ -24,7 +24,11 @@ try {
  const planHash=hash(JSON.stringify(plan));
  if(metadata.plan?.hash!==planHash)throw Error('Plan changed; register it with semantic-plan.mjs set first');
  const {width,height,fps}=metadata.format;
- const still=stillArg!==undefined,second=Number(stillArg);
+ const shot=stillArg==='--shot'?plan.shots?.find(s=>s.id===shotId):null;
+ if(stillArg==='--shot'&&!shot)throw Error('Unknown shot: '+shotId);
+ const range=shot||{start:0,end:metadata.clip.duration};
+ const duration=range.end-range.start;
+ const still=stillArg!==undefined&&stillArg!=='--shot',second=Number(stillArg);
  if(still&&(!Number.isFinite(second)||second<0||second>=metadata.clip.duration))throw Error('Invalid still time');
  const output=path.join(project,'preview',version+(still?'.png':'.mp4'));
  if(fs.existsSync(output))throw Error('Output exists; choose a new version');
@@ -45,11 +49,11 @@ try {
  }
  const frames=path.join(project,'work',version+'-frames');fs.mkdirSync(frames,{recursive:true});
  const snapshot=path.join(project,'work',version+'-snapshot.json');
- atomic(snapshot,{plan,plan_hash:planHash,asset_hashes:assetHashes,source_hash:sourceHash,format:metadata.format,clip:metadata.clip,template_hash:hash(template)});
+ atomic(snapshot,{plan,plan_hash:planHash,asset_hashes:assetHashes,source_hash:sourceHash,format:metadata.format,clip:metadata.clip,render_range:range,template_hash:hash(template)});
  fs.writeFileSync(path.join(project,'work',version+'-stage.html'),template);
  const {chromium}=createRequire(path.resolve(runtimeArg))('playwright');
  const browser=await chromium.launch({executablePath:browserPath,headless:true});
- const total=still?1:Math.round(metadata.clip.duration*fps);
+ const total=still?1:Math.round(duration*fps);
  try {
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
   await page.route('**/*',route=>route.abort()); // Assets are data URLs; no remote requests.
@@ -58,14 +62,14 @@ try {
   const overflow=await page.evaluate(()=>window.measure());
   if(overflow.length)throw Error('Text overflow: '+overflow.join(', '));
   for(let n=0;n<total;n++) {
-   await page.evaluate(t=>window.seek(t),still?second:n/fps);
+   await page.evaluate(t=>window.seek(t),still?second:range.start+n/fps);
    await page.screenshot({path:path.join(frames,String(n).padStart(5,'0')+'.png'),omitBackground:true});
    if(n%60===0)console.log('overlay '+n+'/'+total);
   }
  } finally {await browser.close();}
- const args=['-hide_banner','-loglevel','warning','-n','-ss',String(metadata.clip.start+(still?second:0)),'-i',metadata.source.path,'-framerate',String(fps),'-i',path.join(frames,'%05d.png'),'-filter_complex','[0:v]scale='+width+':'+height+':force_original_aspect_ratio=decrease,pad='+width+':'+height+':(ow-iw)/2:(oh-ih)/2,setsar=1,fps='+fps+',setpts=PTS-STARTPTS[host];[host][1:v]overlay=0:0:shortest=1[out]','-map','[out]'];
+ const args=['-hide_banner','-loglevel','warning','-n','-ss',String(metadata.clip.start+(still?second:range.start)),'-i',metadata.source.path,'-framerate',String(fps),'-i',path.join(frames,'%05d.png'),'-filter_complex','[0:v]scale='+width+':'+height+':force_original_aspect_ratio=decrease,pad='+width+':'+height+':(ow-iw)/2:(oh-ih)/2,setsar=1,fps='+fps+',setpts=PTS-STARTPTS[host];[host][1:v]overlay=0:0:shortest=1[out]','-map','[out]'];
  if(still)args.push('-frames:v','1');
- else args.push('-map','0:a:0?','-t',String(metadata.clip.duration),'-c:v','libx264','-preset','fast','-crf','19','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','-movflags','+faststart');
+ else args.push('-map','0:a:0?','-t',String(duration),'-c:v','libx264','-preset','fast','-crf','19','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','-movflags','+faststart');
  const pending=path.join(project,'work',version+(still?'.pending.png':'.pending.mp4'));
  if(fs.existsSync(pending))throw Error('Partial render exists; inspect or use another version');
  args.push(pending);atomic(path.join(project,'work',version+'-command.json'),args);

@@ -8,6 +8,19 @@ import {read,validatePlan} from '../core/semantic-plan.mjs';
 
 const example=read(new URL('../library/recipes/progressive-explanation/example.json',import.meta.url));
 const metadata={primary_workflow:'talking-head',format:{width:1280,height:720,fps:30},clip:{start:0,duration:6},assets:{}};
+test('no-mask plan rejects panels and text backgrounds',()=>{
+ const p=structuredClone(example);p.no_mask=true;
+ p.layers=[{...p.layers.find(l=>l.type==='text'),style:{background:'#0008'}}];
+ assert.throws(()=>validatePlan(p,metadata),/no_mask/);
+ p.layers[0].style={};validatePlan(p,metadata);
+ p.layers[0].type='panel';assert.throws(()=>validatePlan(p,metadata),/no_mask/);
+});
+test('shot ranges cover clip and align to frames',()=>{
+ const p=structuredClone(example);p.shots=[{id:'first',start:0,end:2},{id:'second',start:2,end:6}];
+ validatePlan(p,metadata);
+ p.shots[1].start=2.1;assert.throws(()=>validatePlan(p,metadata),/gaps/);
+ p.shots[1].start=2.01;p.shots[0].end=2.01;assert.throws(()=>validatePlan(p,metadata),/frame boundary/);
+});
 test('invalid timing and missing media stop a render before work starts',()=>{
  const bad=structuredClone(example);bad.layers[0].end=20;
  assert.throws(()=>validatePlan(bad,metadata),/timing/);
