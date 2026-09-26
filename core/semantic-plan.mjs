@@ -57,12 +57,23 @@ export function validatePlan(plan,project) {
  for(const l of plan.layers) {
   assert(typeof l.id==='string'&&!layerIds.has(l.id),'Invalid/duplicate layer ID');layerIds.add(l.id);
   assert(ids.has(l.beat),'Unknown beat: '+l.id);
-  assert(['text','image','panel','line','connector'].includes(l.type),'Unknown layer type');
+  assert(['text','image','panel','line','connector','counter','bar'].includes(l.type),'Unknown layer type');
   assert(interval(l),'Invalid layer timing: '+l.id);
   assert(['x','y','width','height'].every(k=>finite(l[k])),'Invalid geometry: '+l.id);
   assert(l.width>0&&l.height>0&&l.x>=0&&l.y>=0&&l.x+l.width<=width&&l.y+l.height<=height,'Layer outside canvas: '+l.id);
   for(const r of relevantRegions(l))assert(!(l.x<r.x+r.width&&l.x+l.width>r.x&&l.y<r.y+r.height&&l.y+l.height>r.y),'Layer intersects protected region: '+l.id);
   if(l.type==='text')assert(typeof l.text==='string'&&l.text.length>0,'Missing text: '+l.id);
+  if(['counter','bar'].includes(l.type)) {
+   assert(Array.isArray(l.values)&&l.values.length>=2,'Missing value timeline: '+l.id);
+   let previous=l.start;
+   for(const [i,k] of l.values.entries()) {
+    assert(finite(k.t)&&(i===0?k.t===l.start:k.t>previous)&&k.t<=l.end&&finite(k.value),'Invalid value timeline: '+l.id);
+    if(l.type==='bar')assert(k.value>=0&&k.value<=1,'Bar values must be proportions: '+l.id);
+    previous=k.t;
+   }
+   assert(l.value_easing===undefined||['linear','ease-out'].includes(l.value_easing),'Invalid value easing');
+   if(l.type==='counter')assert(l.decimals===undefined||Number.isInteger(l.decimals)&&l.decimals>=0&&l.decimals<=3,'Invalid decimal precision');
+  }
   if(l.type==='image')assert(project.assets?.[l.asset]?.path&&fs.existsSync(project.assets[l.asset].path),'Missing asset: '+l.asset);
   if(l.keyframes) {
    assert(l.type==='image'&&Array.isArray(l.keyframes)&&l.keyframes.length>=2,'Keyframes require image and at least two poses');

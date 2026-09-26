@@ -5,9 +5,19 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {read,validatePlan} from '../core/semantic-plan.mjs';
+import {metricCard} from '../library/recipes/progressive-explanation/metric-card.mjs';
 
 const example=read(new URL('../library/recipes/progressive-explanation/example.json',import.meta.url));
 const metadata={primary_workflow:'talking-head',format:{width:1280,height:720,fps:30},clip:{start:0,duration:6},assets:{}};
+test('metric rows use the same scale and reject out-of-range data',()=>{
+ const config={id:'metric',beat:'compare',x:60,y:120,width:410,start:0,end:6,headline:[{t:0,value:0},{t:1,value:100}],unit:'ha',context:'Example values',scale:100,rows:[{label:'Main',values:[{t:1,value:0},{t:2,value:100}]},{label:'Average',values:[{t:2,value:0},{t:3,value:33.7}],decimals:1}]};
+ const layers=metricCard(config),p={schema_version:1,recipe:'progressive-explanation',intent:'Compare',canvas:metadata.format,no_mask:true,beats:[{id:'compare',start:0,end:6,purpose:'Compare quantities'}],layers};
+ validatePlan(p,metadata);
+ assert.equal(layers.find(l=>l.id==='metric-bar-1').values[1].value,.337);
+ config.rows[1].values[1].value=101;assert.throws(()=>metricCard(config),/shared scale/);
+ config.rows[1].values[1].value=33.7;
+ p.layers.find(l=>l.type==='bar').values[1].value=1.1;assert.throws(()=>validatePlan(p,metadata),/proportions/);
+});
 test('no-mask plan rejects panels and text backgrounds',()=>{
  const p=structuredClone(example);p.no_mask=true;
  p.layers=[{...p.layers.find(l=>l.type==='text'),style:{background:'#0008'}}];

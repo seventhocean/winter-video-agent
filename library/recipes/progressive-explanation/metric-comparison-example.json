@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "recipe": "progressive-explanation",
+  "intent": "参考片数字和比例条动画练习，数据仅复用片内展示，未做事实核查",
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "no_mask": true,
+  "beats": [
+    {
+      "id": "compare",
+      "start": 0,
+      "end": 6,
+      "purpose": "主数字增长后，按相同尺度展开比较条"
+    }
+  ],
+  "layers": [
+    {
+      "id": "farm-hero",
+      "beat": "compare",
+      "start": 0,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "counter",
+      "x": 60,
+      "y": 150,
+      "width": 196.79999999999998,
+      "height": 144,
+      "values": [
+        {
+          "t": 0,
+          "value": 0
+        },
+        {
+          "t": 1.2,
+          "value": 100
+        }
+      ],
+      "decimals": 0,
+      "value_easing": "ease-out",
+      "style": {
+        "fontSize": 96,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "farm-unit",
+      "beat": "compare",
+      "start": 0,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "text",
+      "text": "ha 公顷",
+      "x": 265,
+      "y": 214,
+      "width": 205,
+      "height": 42,
+      "style": {
+        "fontSize": 28,
+        "fontWeight": 600,
+        "color": "#73e6ce"
+      }
+    },
+    {
+      "id": "farm-context",
+      "beat": "compare",
+      "start": 0,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "text",
+      "text": "参考片动画练习 · 非本期口播数据",
+      "x": 60,
+      "y": 296,
+      "width": 410,
+      "height": 27,
+      "style": {
+        "fontSize": 18,
+        "fontWeight": 600,
+        "color": "#cde0e4"
+      }
+    },
+    {
+      "id": "farm-label-0",
+      "beat": "compare",
+      "start": 1.2,
+      "end": 6,
+      "motion": {
+        "kind": "reveal",
+        "duration": 0.25
+      },
+      "type": "text",
+      "text": "主农场",
+      "x": 60,
+      "y": 348,
+      "width": 112,
+      "height": 31.5,
+      "style": {
+        "fontSize": 21,
+        "fontWeight": 600,
+        "color": "#ffffff"
+      }
+    },
+    {
+      "id": "farm-bar-0",
+      "beat": "compare",
+      "start": 1.2,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "bar",
+      "x": 180,
+      "y": 357,
+      "width": 220,
+      "height": 13,
+      "values": [
+        {
+          "t": 1.2,
+          "value": 0
+        },
+        {
+          "t": 2,
+          "value": 1
+        }
+      ],
+      "value_easing": "ease-out",
+      "style": {
+        "color": "#73e6ce",
+        "radius": 4
+      }
+    },
+    {
+      "id": "farm-value-0",
+      "beat": "compare",
+      "start": 1.2,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "counter",
+      "x": 406,
+      "y": 348,
+      "width": 64,
+      "height": 36,
+      "values": [
+        {
+          "t": 1.2,
+          "value": 0
+        },
+        {
+          "t": 2,
+          "value": 100
+        }
+      ],
+      "decimals": 0,
+      "value_easing": "ease-out",
+      "style": {
+        "fontSize": 21,
+        "fontWeight": 600,
+        "color": "#73e6ce"
+      }
+    },
+    {
+      "id": "farm-label-1",
+      "beat": "compare",
+      "start": 2,
+      "end": 6,
+      "motion": {
+        "kind": "reveal",
+        "duration": 0.25
+      },
+      "type": "text",
+      "text": "所在町",
+      "x": 60,
+      "y": 398,
+      "width": 112,
+      "height": 31.5,
+      "style": {
+        "fontSize": 21,
+        "fontWeight": 600,
+        "color": "#ffffff"
+      }
+    },
+    {
+      "id": "farm-bar-1",
+      "beat": "compare",
+      "start": 2,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "bar",
+      "x": 180,
+      "y": 407,
+      "width": 220,
+      "height": 13,
+      "values": [
+        {
+          "t": 2,
+          "value": 0
+        },
+        {
+          "t": 2.8,
+          "value": 0.337
+        }
+      ],
+      "value_easing": "ease-out",
+      "style": {
+        "color": "#d8e2e4",
+        "radius": 4
+      }
+    },
+    {
+      "id": "farm-value-1",
+      "beat": "compare",
+      "start": 2,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "counter",
+      "x": 406,
+      "y": 398,
+      "width": 64,
+      "height": 36,
+      "values": [
+        {
+          "t": 2,
+          "value": 0
+        },
+        {
+          "t": 2.8,
+          "value": 33.7
+        }
+      ],
+      "decimals": 1,
+      "value_easing": "ease-out",
+      "style": {
+        "fontSize": 21,
+        "fontWeight": 600,
+        "color": "#d8e2e4"
+      }
+    },
+    {
+      "id": "farm-label-2",
+      "beat": "compare",
+      "start": 2.8,
+      "end": 6,
+      "motion": {
+        "kind": "reveal",
+        "duration": 0.25
+      },
+      "type": "text",
+      "text": "全国平均",
+      "x": 60,
+      "y": 448,
+      "width": 112,
+      "height": 31.5,
+      "style": {
+        "fontSize": 21,
+        "fontWeight": 600,
+        "color": "#ffffff"
+      }
+    },
+    {
+      "id": "farm-bar-2",
+      "beat": "compare",
+      "start": 2.8,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "bar",
+      "x": 180,
+      "y": 457,
+      "width": 220,
+      "height": 13,
+      "values": [
+        {
+          "t": 2.8,
+          "value": 0
+        },
+        {
+          "t": 3.6,
+          "value": 0.036000000000000004
+        }
+      ],
+      "value_easing": "ease-out",
+      "style": {
+        "color": "#d8e2e4",
+        "radius": 4
+      }
+    },
+    {
+      "id": "farm-value-2",
+      "beat": "compare",
+      "start": 2.8,
+      "end": 6,
+      "motion": {
+        "kind": "none",
+        "duration": 0.4
+      },
+      "type": "counter",
+      "x": 406,
+      "y": 448,
+      "width": 64,
+      "height": 36,
+      "values": [
+        {
+          "t": 2.8,
+          "value": 0
+        },
+        {
+          "t": 3.6,
+          "value": 3.6
+        }
+      ],
+      "decimals": 1,
+      "value_easing": "ease-out",
+      "style": {
+        "fontSize": 21,
+        "fontWeight": 600,
+        "color": "#d8e2e4"
+      }
+    }
+  ]
+}
