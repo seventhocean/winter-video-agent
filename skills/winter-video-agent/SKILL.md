@@ -16,6 +16,7 @@ description: 在 winter-video-agent 项目中制作或续作真人口播增强�
 
 ## 制作决策
 
+- 制作新代表镜头前，先查 [成品视觉参考](references/visual-sources.md)，从 TalkCraft、ShotCraft、Anything2Explainer 的成品帧、示例和对应实现选择设计依据。记录选用的版式关系与动作顺序；有成熟代码优先按来源规则复用。候选效果未移植前不能当成已支持能力。
 - 一个语义段先明确要让观众理解什么，再选择主体、证据、关系和结论。使用 [递进解释配方](../../library/recipes/progressive-explanation/RECIPE.md) 处理累积信息或关系展开。
 - 生成式物体和场景优先使用可用的 AI 生图工具；真实界面和操作证据使用用户素材或真实采集。文字、数字和关系线保持可编辑。
 - 人物、字幕和关键动作需要留出空间。分镜中的 protected_regions 是用户项目数据，不是全局固定布局。景别或人物位置变化时检查对应原片，按 start/end 声明保护区；不能只检查开头一帧。
