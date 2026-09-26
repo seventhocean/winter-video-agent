@@ -4,6 +4,8 @@ Winter Video Agent 是一个在 Codex 中直接使用的个人视频制作 Agent
 
 当前已有外部项目管理、素材登记、数据驱动的递进解释配方、分镜版本、预览及用户反馈记录。Codex 在本仓库读取 [制作入口](skills/winter-video-agent/SKILL.md) 即可组织这些工具。完整 TalkCraft 流程、自动转写对齐和其他两条生产线仍未接通。旧的 `Winter-video-workspace` 不是本项目的运行依赖。
 
+口播配方现支持图片关键帧重排、跟随对象的曲线与关系点亮、按时段生效的人物保护区，已用16秒独立镜头实际渲染。效果待用户审阅，见 [动态关系阶段记录](docs/milestone-dynamic-relations.md)。
+
 ## 三条视频流程
 
 | 流程 | 典型输入 | 主要结果 | 首要参考 |

@@ -3,6 +3,14 @@
 </style><div id="stage"></div><script>
 const clamp=x=>Math.max(0,Math.min(1,x)),ease=x=>1-Math.pow(1-clamp(x),3);
 let layers=[];
+function pose(l,t){
+ const keys=l.keyframes;if(!keys)return l;
+ if(t<=keys[0].t)return keys[0];
+ for(let i=1;i<keys.length;i++)if(t<keys[i].t){const a=keys[i-1],b=keys[i],p=ease((t-a.t)/(b.t-a.t));return Object.fromEntries(['x','y','width','height'].map(k=>[k,a[k]+(b[k]-a[k])*p]));}
+ return keys[keys.length-1];
+}
+function anchor(l,t,side){const p=pose(l,t);return {x:p.x+p.width*({left:0,right:1}[side]??.5),y:p.y+p.height*({top:0,bottom:1}[side]??.5)};}
+function svgElement(tag,attributes){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v]of Object.entries(attributes))e.setAttribute(k,v);return e;}
 window.setup=({plan,assets})=>{
  const stage=document.getElementById('stage');stage.replaceChildren();stage.style.width=plan.canvas.width+'px';stage.style.height=plan.canvas.height+'px';
  layers=plan.layers.map(layer=>{
@@ -11,15 +19,32 @@ window.setup=({plan,assets})=>{
   if(layer.type==='image'){const im=document.createElement('img');im.src=assets[layer.asset];im.style.objectFit=s.fit||'contain';node.append(im);}
   if(layer.type==='text'){node.textContent=layer.text;if(plan.no_mask)node.style.textShadow='0 1px 2px #000, 0 2px 5px #000, 1px 0 1px #000, -1px 0 1px #000';}
   if(layer.type==='line'){node.style.background=s.color||'#73e6ce';node.style.transformOrigin=layer.height>layer.width?'center top':'left center';}
-  stage.append(node);return {layer,node};
+  let trace,base;
+  if(layer.type==='connector'){
+   const svg=svgElement('svg',{width:'100%',height:'100%',viewBox:`0 0 ${layer.width} ${layer.height}`});
+   base=svgElement('path',{fill:'none',stroke:'#788b91','stroke-width':2,opacity:.6});
+   trace=svgElement('path',{fill:'none',stroke:s.color||'#73e6ce','stroke-width':3,pathLength:1,'stroke-dasharray':1,'stroke-linecap':'round'});
+   svg.append(base,trace);node.append(svg);
+  }
+  stage.append(node);return {layer,node,trace,base};
  });
 };
 window.seek=t=>{
- for(const {layer:l,node:n} of layers){
+ const byId=new Map(layers.map(({layer:l})=>[l.id,l]));
+ for(const {layer:l,node:n,trace,base} of layers){
   const m=l.motion||{kind:'reveal',duration:.35},p=ease((t-l.start)/m.duration);
   const visible=t>=l.start&&t<l.end;
   const fade=l.end<window.planDuration?clamp((l.end-t)/.15):1;
   n.style.opacity=visible?(m.kind==='none'?1:p)*fade:0;
+  if(l.keyframes){const q=pose(l,t);Object.assign(n.style,{left:q.x+'px',top:q.y+'px',width:q.width+'px',height:q.height+'px'});}
+  if(l.type==='connector'){
+   const a=anchor(byId.get(l.from.layer),t,l.from.anchor),b=anchor(byId.get(l.to.layer),t,l.to.anchor);
+   const ax=a.x-l.x,ay=a.y-l.y,bx=b.x-l.x,by=b.y-l.y;
+   const vertical=['top','bottom'].includes(l.from.anchor),mid=vertical?(ay+by)/2:(ax+bx)/2;
+   const d=vertical?`M ${ax} ${ay} C ${ax} ${mid}, ${bx} ${mid}, ${bx} ${by}`:`M ${ax} ${ay} C ${mid} ${ay}, ${mid} ${by}, ${bx} ${by}`;
+   base.setAttribute('d',d);trace.setAttribute('d',d);
+   trace.style.strokeDashoffset=1-ease((t-l.active_at)/m.duration);trace.style.opacity=t>=l.active_at?1:0;
+  }
   let transform='none';
   if(m.kind==='reveal')transform='translateY('+(12*(1-p))+'px)';
   if(m.kind==='pop')transform='scale('+(.78+.22*p+.06*Math.sin(Math.PI*clamp((t-l.start)/m.duration)))+')';

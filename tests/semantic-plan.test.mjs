@@ -31,6 +31,27 @@ test('protected face/subtitle region rejects overlapping layout',()=>{
  const bad=structuredClone(example);bad.protected_regions=[{x:700,y:100,width:50,height:50}];
  assert.throws(()=>validatePlan(bad,metadata),/protected region/);
 });
+test('moving media cannot sweep through protected regions, connectors require live endpoints',()=>{
+ const p=structuredClone(example);p.protected_regions=[{x:880,y:100,width:20,height:50}];
+ const assetPath=new URL('../library/recipes/progressive-explanation/stage.html',import.meta.url).pathname;
+ const project={...metadata,assets:{sample:{path:assetPath}}};
+ const moving={id:'moving',beat:p.beats[0].id,type:'image',asset:'sample',x:700,y:100,width:50,height:50,start:0,end:6,keyframes:[{t:0,x:700,y:100,width:50,height:50},{t:3,x:1000,y:100,width:50,height:50}]};
+ p.layers=[moving];assert.throws(()=>validatePlan(p,project),/Motion intersects/);
+ p.protected_regions=[];
+ const target={id:'target',beat:p.beats[0].id,type:'text',text:'Result',x:1000,y:400,width:100,height:50,start:0,end:6};
+ const connector={id:'connection',beat:p.beats[0].id,type:'connector',x:690,y:90,width:430,height:400,start:0,end:6,active_at:1,from:{layer:'moving',anchor:'bottom'},to:{layer:'target',anchor:'top'}};
+ p.layers.push(target,connector);validatePlan(p,project);
+ target.end=5;assert.throws(()=>validatePlan(p,project),/outlives/);
+ target.end=6;connector.to.layer='missing';assert.throws(()=>validatePlan(p,project),/endpoint/);
+});
+test('timed face protection permits a layout only outside its active shot',()=>{
+ const p=read(new URL('../library/recipes/progressive-explanation/relations-example.json',import.meta.url));
+ validatePlan(p,metadata);
+ p.protected_regions=[{x:620,y:140,width:100,height:50,start:0,end:1}];
+ // Connectors conservatively contain their endpoints, so omit them for this layout check.
+ p.layers=p.layers.filter(l=>l.type!=='connector');validatePlan(p,metadata);
+ p.protected_regions[0].end=2;assert.throws(()=>validatePlan(p,metadata),/protected region/);
+});
 test('same plan keeps review, changing plan invalidates approval, old review cannot approve new plan',()=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'wva-plan-'));
  try {

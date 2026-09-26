@@ -50,19 +50,36 @@ export function validatePlan(plan,project) {
   assert(typeof beat.purpose==='string'&&beat.purpose.trim(),'Missing beat purpose');
  }
  const regions=plan.protected_regions||[];
- for(const r of regions)assert([r.x,r.y,r.width,r.height].every(finite)&&r.width>0&&r.height>0,'Invalid protected region');
+ for(const r of regions){assert([r.x,r.y,r.width,r.height].every(finite)&&r.width>0&&r.height>0,'Invalid protected region');if(r.start!==undefined||r.end!==undefined)assert(interval(r),'Invalid protected region timing');}
+ const relevantRegions=l=>regions.filter(r=>r.start===undefined||(l.start<r.end&&l.end>r.start));
  assert(Array.isArray(plan.layers)&&plan.layers.length>0&&plan.layers.length<=100,'Expected 1–100 layers');
  const layerIds=new Set();
  for(const l of plan.layers) {
   assert(typeof l.id==='string'&&!layerIds.has(l.id),'Invalid/duplicate layer ID');layerIds.add(l.id);
   assert(ids.has(l.beat),'Unknown beat: '+l.id);
-  assert(['text','image','panel','line'].includes(l.type),'Unknown layer type');
+  assert(['text','image','panel','line','connector'].includes(l.type),'Unknown layer type');
   assert(interval(l),'Invalid layer timing: '+l.id);
   assert(['x','y','width','height'].every(k=>finite(l[k])),'Invalid geometry: '+l.id);
   assert(l.width>0&&l.height>0&&l.x>=0&&l.y>=0&&l.x+l.width<=width&&l.y+l.height<=height,'Layer outside canvas: '+l.id);
-  for(const r of regions)assert(!(l.x<r.x+r.width&&l.x+l.width>r.x&&l.y<r.y+r.height&&l.y+l.height>r.y),'Layer intersects protected region: '+l.id);
+  for(const r of relevantRegions(l))assert(!(l.x<r.x+r.width&&l.x+l.width>r.x&&l.y<r.y+r.height&&l.y+l.height>r.y),'Layer intersects protected region: '+l.id);
   if(l.type==='text')assert(typeof l.text==='string'&&l.text.length>0,'Missing text: '+l.id);
   if(l.type==='image')assert(project.assets?.[l.asset]?.path&&fs.existsSync(project.assets[l.asset].path),'Missing asset: '+l.asset);
+  if(l.keyframes) {
+   assert(l.type==='image'&&Array.isArray(l.keyframes)&&l.keyframes.length>=2,'Keyframes require image and at least two poses');
+   let previous=l.start;
+   const poses=[l];
+   for(const [i,k] of l.keyframes.entries()) {
+    assert(finite(k.t)&&k.t>=l.start&&k.t<=l.end&&(i===0?k.t===l.start:k.t>previous),'Invalid keyframe time: '+l.id);
+    assert(['x','y','width','height'].every(n=>finite(k[n]))&&k.width>0&&k.height>0,'Invalid keyframe pose: '+l.id);
+    assert(k.x>=0&&k.y>=0&&k.x+k.width<=width&&k.y+k.height<=height,'Keyframe outside canvas: '+l.id);
+    poses.push(k);previous=k.t;
+   }
+   // Conservative swept rectangles also cover intermediate interpolated poses.
+   for(let i=1;i<poses.length;i++) {
+    const a=poses[i-1],b=poses[i],x=Math.min(a.x,b.x),y=Math.min(a.y,b.y),right=Math.max(a.x+a.width,b.x+b.width),bottom=Math.max(a.y+a.height,b.y+b.height);
+    for(const r of relevantRegions(l))assert(!(x<r.x+r.width&&right>r.x&&y<r.y+r.height&&bottom>r.y),'Motion intersects protected region: '+l.id);
+   }
+  }
   const s=l.style||{},nums=['fontSize','fontWeight','radius','borderWidth','padding'],colors=['color','background','borderColor'];
   if(plan.no_mask)assert(l.type!=='panel'&&!s.background,'no_mask forbids panels and background fills: '+l.id);
   for(const k of Object.keys(s))assert([...nums,...colors,'align','fit'].includes(k),'Unknown style: '+k);
@@ -73,6 +90,16 @@ export function validatePlan(plan,project) {
   if(l.motion) {
    assert(['reveal','pop','draw','none'].includes(l.motion.kind),'Invalid motion');
    assert(finite(l.motion.duration)&&l.motion.duration>0&&l.motion.duration<=l.end-l.start,'Invalid motion duration');
+  }
+ }
+ const byId=new Map(plan.layers.map(l=>[l.id,l]));
+ for(const l of plan.layers.filter(l=>l.type==='connector')) {
+  assert(finite(l.active_at)&&l.active_at>=l.start&&l.active_at<l.end,'Invalid connector activation: '+l.id);
+  for(const endpoint of [l.from,l.to]) {
+   const target=byId.get(endpoint?.layer);
+   assert(target&&target.type!=='connector'&&['top','bottom','left','right','center'].includes(endpoint.anchor),'Invalid connector endpoint: '+l.id);
+   assert(target.start<=l.start&&target.end>=l.end,'Connector outlives endpoint: '+l.id);
+   for(const pose of [target,...(target.keyframes||[])])assert(pose.x>=l.x&&pose.y>=l.y&&pose.x+pose.width<=l.x+l.width&&pose.y+pose.height<=l.y+l.height,'Connector bounds must contain endpoint poses: '+l.id);
   }
  }
  return plan;
