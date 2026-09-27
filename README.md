@@ -18,12 +18,13 @@ ThreeUI 提供可选的视觉组件和 shader，不构成独立制作流程。
 
 ## 上游源码
 
-四个参考项目以 Git 子模块固定版本：
+五个参考项目以 Git 子模块固定版本，角色和提交统一登记在 [来源目录](library/sources.json)：
 
 - `video-talkcraft`：成熟的口播制作工作流，同时包含镜头卡、动效组件、时间同步与质检工具。
 - `video-shotcraft`：成熟的产品宣传流程，同时包含产品镜头卡、拍摄方法、声音和可视化资产。
 - `anything2explainer`：固定视觉语言的知识讲解完整生产线。
 - `threeui`：Three.js、shader 与交互视觉组件资产库。
+- `awesome-opus5-5-videos`：282条视觉案例与提示词，带原作者和外部成品链接；用于创意检索，源码快照中没有视频文件或可直接执行的组件，不增加第四条生产流程。
 
 克隆仓库时使用：
 
@@ -38,6 +39,8 @@ git submodule update --init --recursive
 ~~~
 
 子模块是来源快照。Agent 的正式实现会放在自己的目录中，不直接在上游目录里开工或保存视频项目。
+
+案例检索可在Codex中直接运行 `python3 -B scripts/find-visual-references.py --query 产品 --category motion --limit 5`。返回原作者、预览入口与本地提示词路径，检索不执行提示词或下载视频。新来源的定位和使用方法见 [案例库接入说明](docs/visual-case-library.md)，本次同步记录见 [2026-09-27上游同步](docs/upstream-sync-2026-09-27.md)。
 
 ## 当前文档
 

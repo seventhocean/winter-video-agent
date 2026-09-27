@@ -1,6 +1,6 @@
 # 成品视觉参考与效果候选
 
-2026-09-26，用户明确要求今后多参考三个上游项目的成品视觉设计，再扩充效果。此文件是选型入口，不是已实现能力清单。当前项目V8成组信息图已获用户认可；该视觉评价仍只属于本期。
+2026-09-26，用户明确要求今后多参考三个上游项目的成品视觉设计，再扩充效果。2026-09-27同步三个上游并增加案例库入口。此文件是选型入口，不是已实现能力清单。当前项目V8成组信息图已获用户认可；该视觉评价仍只属于本期。
 
 ## 使用顺序
 
@@ -17,6 +17,10 @@
 - Anything2Explainer：实际知识讲解成片的主次、概念流程、结果强调与章节延续。
 
 ThreeUI仍是资产来源，不作为第四条制作流程。
+
+`awesome-opus5-5-videos` 补充更广的作品与提示词线索。查 [接入说明](../../../docs/visual-case-library.md)，或运行 `python3 -B scripts/find-visual-references.py --query 产品 --category motion --limit 5`。先检索，再看实际成品，之后到成熟卡片选实现；该库没有本地成片或组件源码，不能直接当成渲染工具。
+
+最新TalkCraft另有 [语义标注](../../../video-talkcraft/references/semantic-annotation.md) 和 `scripts/card_match.py`，可参考其“输入类型 + 句子语义”双重选卡方法。尚未移植其时间戳/SHOTBOOK前，不直接对本项目semantic-plan格式调用。
 
 ## 第一批候选
 
@@ -38,8 +42,11 @@ ThreeUI仍是资产来源，不作为第四条制作流程。
 
 ## 固定来源
 
-- TalkCraft：`b7fb9ac943c64b1d6dd61f9576635b173602a4a4`
-- ShotCraft：`5e71af35a2daee492dd3ea93e5e8903f32dcd13c`
-- Anything2Explainer：`5544f599522cc0f7bab6d0dfe823905059641172`
+- TalkCraft：`914103688cdec20ea35699f73b08e357a817c37a`
+- ShotCraft：`e2d8928c57ef84701f9b0119ca4a1c28a62050c1`
+- Anything2Explainer：`735c79c8724e897e8971cd59dde7e5aa11e4d6ce`
+- 案例库：`1c092195b7bda246455827bc0be820be6d6a7b97`
+
+来源统一记录在 [library/sources.json](../../../library/sources.json)；2026-09-26检查过的视觉预览链接在本次同步后仍存在，未重跑或假称重新观看所有动态成品。
 
 本轮只有参考阅读、用户反馈记录和入口更新，未复制上游组件、安装依赖或重渲视频。后续移植以具体镜头需要为单位，优先步骤线、图文证据接力、章节标题延续；数字滚轮与页面运镜在有适合内容时再接入。

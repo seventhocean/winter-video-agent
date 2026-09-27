@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "video-talkcraft",
+      "path": "video-talkcraft",
+      "role": "workflow-baseline",
+      "workflows": [
+        "talking-head"
+      ],
+      "remote": "git@github.com:Vincentwei1021/video-talkcraft.git",
+      "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+      "read_only": true,
+      "status": "upstream-snapshot",
+      "synced_on": "2026-09-27"
+    },
+    {
+      "id": "video-shotcraft",
+      "path": "video-shotcraft",
+      "role": "workflow-baseline",
+      "workflows": [
+        "product-promo"
+      ],
+      "remote": "https://github.com/Vincentwei1021/video-shotcraft.git",
+      "commit": "e2d8928c57ef84701f9b0119ca4a1c28a62050c1",
+      "read_only": true,
+      "status": "upstream-snapshot",
+      "synced_on": "2026-09-27"
+    },
+    {
+      "id": "anything2explainer",
+      "path": "anything2explainer",
+      "role": "workflow-baseline",
+      "workflows": [
+        "knowledge-explainer"
+      ],
+      "remote": "git@github.com:Vincentwei1021/anything2explainer.git",
+      "commit": "735c79c8724e897e8971cd59dde7e5aa11e4d6ce",
+      "read_only": true,
+      "status": "upstream-snapshot",
+      "synced_on": "2026-09-27"
+    },
+    {
+      "id": "threeui",
+      "path": "threeui",
+      "role": "component-library",
+      "workflows": [
+        "talking-head",
+        "product-promo",
+        "knowledge-explainer"
+      ],
+      "remote": "https://github.com/MengTo/threeui.git",
+      "commit": "68802d5428071ada5c20db8094b1649e6bb770ed",
+      "read_only": true,
+      "status": "upstream-snapshot",
+      "unchanged_in_sync": true
+    },
+    {
+      "id": "awesome-opus5-5-videos",
+      "path": "awesome-opus5-5-videos",
+      "role": "visual-reference-library",
+      "workflows": [
+        "talking-head",
+        "product-promo",
+        "knowledge-explainer"
+      ],
+      "remote": "https://github.com/yihui-dev/awesome-opus5-5-videos.git",
+      "commit": "1c092195b7bda246455827bc0be820be6d6a7b97",
+      "read_only": true,
+      "status": "upstream-snapshot",
+      "synced_on": "2026-09-27",
+      "index": "data/videos.json",
+      "prompt_directory": "prompts",
+      "entry_count": 282,
+      "provides": [
+        "prompts",
+        "case-links",
+        "remote-preview-links"
+      ],
+      "does_not_provide": [
+        "local-video-files",
+        "ready-to-run-components",
+        "production-workflow"
+      ]
+    }
+  ]
+}

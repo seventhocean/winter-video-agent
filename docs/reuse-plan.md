@@ -2,7 +2,7 @@
 
 ## 目标
 
-Winter Video Agent 不做四个上游仓库的薄封装，也不重新发明已经成熟的制作流程。它将经过验证的代码吸收到自己的三条流程中，并统一项目生命周期、素材管理、运行环境、预览、质检和交付入口。
+Winter Video Agent 吸收成熟上游已经跑通的实现，统一三条流程的项目生命周期、素材管理、运行环境、预览、质检和交付入口。五个上游来源按角色区分：三个生产流程基线、ThreeUI组件库、Awesome Opus视觉案例库。
 
 ## 五层结构
 
@@ -44,7 +44,7 @@ winter-video-agent/
 
 ### 上游保持原样
 
-四个子模块只用于阅读、比较、运行上游基线测试和同步版本。禁止在子模块里保存自有修改或单期视频产物。
+五个子模块只用于阅读、比较和同步版本；需要验证运行的源码先在仓库外准备隔离副本。禁止在子模块里保存自有修改、安装依赖或单期视频产物。
 
 ### 精确复制后再改
 
@@ -75,6 +75,7 @@ winter-video-agent/
 | ShotCraft | pipeline、styleframe、卖点映射、页面捕获、PageCam/helper | 产品项目 manifest、确定性随机数、声音登记 | Workbench、剪映导出、全部图库 |
 | Anything2Explainer | TTS、storyboard、分组预览、自检与黄金示例 | 动态分组、隔离运行时、风格 profile | 多风格扩展 |
 | ThreeUI | 首批被项目实际选中的组件 | 帧驱动、固定 seed、离线渲染 | 整站迁移、全量 shader |
+| Awesome Opus 5.5 Videos | 案例索引与提示词/成品链接检索 | 选中作品观看、视觉方法到镜头卡的映射 | 全量下载、把提示词当Skill或生产流程 |
 
 ## 运行与存储
 
@@ -134,7 +135,7 @@ new → inspect → prepare → preview → render → qa → deliver → clean
 
 ### M0：仓库与契约
 
-- 固定四个上游提交。
+- 固定五个来源的提交；三个工作流基线和两个资产/参考来源分别登记。
 - 写清三条流程、资产层和仓库边界。
 - 定义统一生命周期和每条流程的输入输出。
 
@@ -170,7 +171,7 @@ new → inspect → prepare → preview → render → qa → deliver → clean
 
 ### M5：资产目录
 
-- 建立 TalkCraft/ShotCraft 卡片的搜索索引。
+- 建立 TalkCraft/ShotCraft 卡片的搜索索引；案例层已接入Awesome Opus本地关键词检索，不等于镜头卡检索已完成。
 - 为纳入的 ThreeUI 组件增加确定性渲染适配。
 - 为每个自有资产生成缩略图、输入参数和兼容 workflow。
 

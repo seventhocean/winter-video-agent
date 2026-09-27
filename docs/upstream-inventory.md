@@ -1,15 +1,16 @@
-# 四个上游项目剖析
+# 上游项目剖析
 
-更新日期：2026-09-12
+初次剖析：2026-09-12；来源版本更新：2026-09-27。新增案例库详见 [接入说明](visual-case-library.md)，版本变化见 [同步记录](upstream-sync-2026-09-27.md)。
 
 ## 结论
 
-四个上游项目不在同一个能力层级。它们应当按“生产流程”和“资产来源”拆开理解：
+五个上游项目不在同一个能力层级。它们应当按“生产流程”和“资产来源”拆开理解：
 
 - TalkCraft：口播生产流程，同时也是镜头卡和质检工具库。
 - ShotCraft：产品宣传生产流程，同时也是产品镜头卡和声音资产库。
 - Anything2Explainer：知识讲解的端到端生产流程，视觉语言较固定。
 - ThreeUI：视觉组件资产库，不负责从需求到成片的生产流程。
+- Awesome Opus 5.5 Videos：视觉案例、提示词和远端成品链接，不提供生产流程或可直接运行的动画组件。
 
 Winter Video Agent 应维护自己的三条流程，吸收这些项目已经跑通的实现。上游子模块只负责保存可追溯的源码快照。
 
@@ -17,10 +18,11 @@ Winter Video Agent 应维护自己的三条流程，吸收这些项目已经跑�
 
 | 上游 | 提交 | 上游许可证 | 在本项目中的角色 |
 | --- | --- | --- | --- |
-| Anything2Explainer | `5544f599522cc0f7bab6d0dfe823905059641172` | PolyForm Noncommercial | 知识讲解流程来源 |
-| TalkCraft | `b7fb9ac943c64b1d6dd61f9576635b173602a4a4` | PolyForm Noncommercial | 口播流程与卡片来源 |
-| ShotCraft | `5e71af35a2daee492dd3ea93e5e8903f32dcd13c` | Apache-2.0 | 产品流程与卡片来源 |
+| Anything2Explainer | `735c79c8724e897e8971cd59dde7e5aa11e4d6ce` | PolyForm Noncommercial | 知识讲解流程来源 |
+| TalkCraft | `914103688cdec20ea35699f73b08e357a817c37a` | PolyForm Noncommercial | 口播流程与卡片来源 |
+| ShotCraft | `e2d8928c57ef84701f9b0119ca4a1c28a62050c1` | Apache-2.0 | 产品流程与卡片来源 |
 | ThreeUI | `68802d5428071ada5c20db8094b1649e6bb770ed` | MIT | 视觉组件来源 |
+| Awesome Opus 5.5 Videos | `1c092195b7bda246455827bc0be820be6d6a7b97` | 快照无LICENSE文件 | 案例、提示词和成品链接来源 |
 
 用户已确认获得 Vincent 对前三个相关项目进行代码复用和二次开发的授权。实现时仍然记录每段吸收代码的来源提交和路径，方便维护与同步。
 
@@ -79,7 +81,7 @@ ShotCraft 是一条完整的产品宣传制作流程：
 
 ### 可直接吸收的资产
 
-- 157 张镜头卡及其参考说明。
+- 当前快照 `references/shots/` 中158份镜头卡说明。
 - 214 个风格记录和对应预览媒体。
 - PageCam、FlashCut、ClipCard、DigitRoll、VerticalTicker 等组件。
 - camera、motion、rand、shake 等 helper。
