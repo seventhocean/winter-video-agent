@@ -20,7 +20,7 @@ try {
  const catalog=read(path.join(root,'library/motion/catalog.json'));
  const plan=validatePlan({...base,layers,motion_sources:[...used].map(id=>{
   const record=catalog.items.find(item=>item.id===id);
-  return {id,implementation:catalog.implementation,design_reference:record.design_reference};
+  return {id,implementation:record.implementation||catalog.implementation,design_reference:record.design_reference};
  }),construction_hash:hash(fs.readFileSync(input))},read(path.join(project,'project.json')));
  const fingerprint=hash(JSON.stringify(plan)),archive=path.join(project,'decisions/constructions');
  fs.mkdirSync(archive,{recursive:true});

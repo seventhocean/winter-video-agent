@@ -20,7 +20,7 @@ ThreeUI仍是资产来源，不作为第四条制作流程。
 
 `awesome-opus5-5-videos` 补充更广的作品与提示词线索。查 [接入说明](../../../docs/visual-case-library.md)，或运行 `python3 -B scripts/find-visual-references.py --query 产品 --category motion --limit 5`。先检索，再看实际成品，之后到成熟卡片选实现；该库没有本地成片或组件源码，不能直接当成渲染工具。
 
-最新TalkCraft另有 [语义标注](../../../video-talkcraft/references/semantic-annotation.md) 和 `scripts/card_match.py`，可参考其“输入类型 + 句子语义”双重选卡方法。尚未移植其时间戳/SHOTBOOK前，不直接对本项目semantic-plan格式调用。
+TalkCraft 的“输入类型 + 句子语义”双重选卡已适配到 [内容规划入口](planning.md)，复用 scripts/card_match.py 的可行性与排序逻辑；使用本项目内容说明，不直接对 semantic-plan 调用上游 SHOTBOOK 解析器。自动转写与时间戳对齐仍未接通。
 
 ## 第一批候选
 

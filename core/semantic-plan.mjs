@@ -3,6 +3,12 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 export const hash = value => createHash('sha256').update(value).digest('hex');
+export function hashFile(file) {
+ const digest=createHash('sha256'),buffer=Buffer.alloc(1024*1024),fd=fs.openSync(file,'r');
+ try{let size;while((size=fs.readSync(fd,buffer,0,buffer.length,null))>0)digest.update(buffer.subarray(0,size));}
+ finally{fs.closeSync(fd);}
+ return digest.digest('hex');
+}
 export const read = file => JSON.parse(fs.readFileSync(file,'utf8'));
 export function atomic(file,value) {
  const temp=file+'.'+process.pid+'.tmp';
@@ -29,6 +35,15 @@ export function validatePlan(plan,project) {
  assert(width===project.format?.width&&height===project.format?.height,'Canvas must match project format');
  assert(finite(project.format.fps)&&project.format.fps>0&&project.format.fps<=60,'Invalid fps');
  assert(finite(project.clip?.duration)&&project.clip.duration>0&&finite(project.clip.start)&&project.clip.start>=0,'Invalid clip');
+ if(plan.planning) {
+  const p=plan.planning,b=p.project_basis;
+  assert(p.storyboard_sha256===project.planning?.storyboard?.sha256,'Storyboard is not the current registered construction');
+  assert(b&&b.source_sha256===project.source.sha256&&JSON.stringify(b.clip)===JSON.stringify(project.clip)&&JSON.stringify(b.format)===JSON.stringify(project.format),'Planning was prepared for different project inputs');
+  assert(b.asset_hashes&&Object.keys(b.asset_hashes).length===Object.keys(project.assets||{}).length,'Planning asset inventory changed');
+  for(const [id,fingerprint] of Object.entries(b.asset_hashes))assert(project.assets?.[id]?.sha256===fingerprint,'Planning asset version changed: '+id);
+  assert(Array.isArray(p.files)&&p.files.length>0,'Planning needs traceable input records');
+  for(const f of p.files)assert(fs.existsSync(f.path)&&hashFile(f.path)===f.sha256,'Planning dependency changed: '+f.path);
+ }
  const interval=o=>finite(o.start)&&finite(o.end)&&o.start>=0&&o.end>o.start&&o.end<=project.clip.duration;
  if(plan.no_mask!==undefined)assert(typeof plan.no_mask==='boolean','Invalid no_mask');
  if(plan.source_layout!==undefined) {

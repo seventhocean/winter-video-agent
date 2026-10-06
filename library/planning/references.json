@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "items": [
+    {"id":"winter:retained-endpoints","source":"winter-video-agent","title":"保持两端，改变传递对象","summary":"两端对象跨语义段保持身份，指令/文件集合展开后沿关系进入目标，示意随后交接给真实证据。","semantics":["机制","步骤"],"inputs":[{"type":"图","need":null}],"methods":["group-sequence","object-motion"],"reference":"docs/talking-head-editing-method.md","keywords":["连接","传输","迁移","文件","关系"],"limitations":"需要按本期对象关系填写姿态与连接；不生成上传成功或虚假进度。"},
+    {"id":"winter:evidence-focus","source":"winter-video-agent","title":"真实截图整体到细节","summary":"建立真实证据，再推进到口播所指的细节，证据与注解属于同一组。","semantics":["例证","引用","强调","过程演示"],"inputs":[{"type":"截图","need":"必需"}],"methods":["evidence-focus"],"reference":"library/motion/README.md","keywords":["界面","按钮","截图","操作"],"limitations":"只裁补充截图；真实操作仍交给原片，不用静帧编造操作结果。"},
+    {"id":"winter:metric-card","source":"winter-video-agent","title":"计数与共同尺度比较","summary":"数字、单位、比例条和比较结果成组展开。","semantics":["数据","对比"],"inputs":[{"type":"文","need":null}],"methods":["metric-card"],"reference":"library/recipes/progressive-explanation/RECIPE.md","keywords":["数字","比例","比较"],"limitations":"需要有依据的数值、单位和共同尺度。"},
+    {"id":"anything2explainer:rerank-funnel","source":"anything2explainer","title":"候选集合筛选与收敛","summary":"集合进入筛选阶段，保留重点并强调结果；参考知识讲解的主体尺度与分组。","semantics":["选择","机制"],"inputs":[{"type":"文","need":null}],"reference":"examples/rag/分镜表.md","code":"examples/rag/shots_src/G6/SC26.tsx","preview":"examples/rag/frames/ref_rerank_funnel_f4900.jpg","keywords":["筛选","收敛","排序"],"limitations":"知识讲解成品参考，尚未移植到真人口播。"},
+    {"id":"anything2explainer:agentic-loop","source":"anything2explainer","title":"条件驱动的闭环","summary":"执行、评估、继续循环与独立结果出口，动作对应条件。","semantics":["机制","步骤"],"inputs":[{"type":"文","need":null}],"reference":"examples/rag/分镜表.md","code":"examples/rag/shots_src/G7/SC37.tsx","preview":"examples/rag/frames/ref_agentic_loop_f6900.jpg","keywords":["循环","评估","条件"],"limitations":"知识讲解成品参考，尚未移植到真人口播。"},
+    {"id":"threeui:community-components","source":"threeui","title":"ThreeUI 组件资产入口","summary":"按组件标签检索可复用的界面、材质和背景资产，再读取对应源码。","semantics":[],"inputs":[],"reference":"README.md","code":"src/data/shaders.tsx","preview":"assets/preview.jpg","keywords":["UI","组件","材质","背景"],"limitations":"资产目录入口，不作为自动选镜卡或已接通的视频工作流。"}
+  ]
+}

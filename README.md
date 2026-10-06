@@ -6,6 +6,8 @@ Winter Video Agent 是一个在 Codex 中直接使用的个人视频制作 Agent
 
 口播公共命令已覆盖 `new → prepare → plan → preview → render → deliver → clean`，运行环境保存在外部项目中。已有 [可配置编排能力](library/motion/README.md) 支持对象迁移、成组展开、真实证据推进及指标比较；Codex 根据参考和内容做设计，命令执行计划。用法见 [执行说明](skills/winter-video-agent/references/execution.md)。
 
+内容到方案已接通 `brief → suggest → storyboard → plan --compile`。本地检索覆盖 108 张 TalkCraft 卡、157 张 ShotCraft 卡、282 个视觉案例，另有整理的讲解成品与组件资产入口；按语义和素材推荐可行候选，记录实际参考分析、逐镜施工与动作实现。[规划用法](skills/winter-video-agent/references/planning.md) 说明字段和范围；检索数量不等于可直接调用的效果数量。
+
 口播配方支持图片关键帧重排、跟随对象的曲线与关系点亮、按时段生效的人物保护区。「AI 帮我换手机」97秒全片已获用户确认并交付。该案例用于建立 [参考驱动的剪辑方法](docs/talking-head-editing-method.md)：先分析用户案例和素材库成品，完成逐镜编排，再选择实现；每期的元素、配色与动效按内容重新决定。
 
 ## 三条视频流程
@@ -48,6 +50,7 @@ git submodule update --init --recursive
 
 - [口播剪辑方法与已确认案例](docs/talking-head-editing-method.md)
 - [口播公共执行链与第二段验证](docs/milestone-talking-head-runner.md)
+- [内容到方案入口与真实片段验证](docs/milestone-content-planning.md)
 - [上游项目剖析](docs/upstream-inventory.md)
 - [代码吸收与实现计划](docs/reuse-plan.md)
 - [三条流程契约](docs/workflow-contracts.md)

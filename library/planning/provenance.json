@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "source": "video-talkcraft",
+  "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+  "license_path": "video-talkcraft/LICENSE",
+  "authorization_record": "AGENTS.md",
+  "adaptations": [
+    {
+      "original_path": "scripts/card_match.py",
+      "original_symbols": ["feasible", "score"],
+      "destination": "workflows/talking-head/card_match.py",
+      "changes": "保留输入可行性、素材/位置/重复/多图/写死内容排序，换用本项目结构化语义段，不依赖上游 SHOTBOOK 解析器。近期记录仅使用实际选择，不把首选候选当作已经使用。"
+    },
+    {
+      "original_path": "template/cards/title-demote-to-label.tsx",
+      "original_symbols": ["CONFIG", "demoteAt", "growAt"],
+      "destination": "library/motion/title-demote-to-label.mjs",
+      "changes": "复用时间参数与标题/内容交叠调度，沿用单次 cubic inOut 的缩放和位移；适配现有图层，支持文本和图片内容、单期几何/颜色/口播锚点，不复制整屏底色、装饰条或内容底板。当前不移植 blur 和 clip-path 生长。"
+    }
+  ]
+}

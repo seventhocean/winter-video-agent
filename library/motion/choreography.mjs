@@ -1,6 +1,7 @@
 // Compile content-specific choreography into existing deterministic plan layers.
 // No fixed palette, assets, canvas or topic; no dependency on upstream runtimes.
 import {metricCard} from '../recipes/progressive-explanation/metric-card.mjs';
+import {titleDemote} from './title-demote-to-label.mjs';
 
 const geometry=p=>Object.fromEntries(['x','y','width','height'].map(k=>[k,p[k]]));
 
@@ -31,4 +32,4 @@ export function evidenceFocus({views,method,...layer}) {
 }
 
 export const builders={'object-motion':objectMotion,'group-sequence':groupSequence,
- 'evidence-focus':evidenceFocus,'metric-card':metricCard};
+ 'evidence-focus':evidenceFocus,'metric-card':metricCard,'title-demote-to-label':titleDemote};

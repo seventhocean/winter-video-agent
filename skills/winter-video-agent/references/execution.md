@@ -29,6 +29,8 @@ python3 -B -m core.cli inspect PROJECT
 
 ## 计划
 
+新设计先用 [内容到方案入口](planning.md) 完成 brief、suggest 与 storyboard，再编译关联施工。已有计划的小修订沿用已确认的分析与设计，仅更新受影响部分。
+
 先阅读 [配方和数据契约](../../../library/recipes/progressive-explanation/RECIPE.md)。计划是本项目口播流程格式，不要求其他两条流程采用。
 
 ~~~bash

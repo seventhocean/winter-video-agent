@@ -13,6 +13,8 @@
 
 在本仓库制作或续作视频时，先读取 `skills/winter-video-agent/SKILL.md`。口播已接通数据驱动配方与公共执行、交付和清理入口；其余两条流程仍按文档规划，不能当成已实现能力。
 
+新口播设计使用 `brief → suggest → storyboard` 记录语义、参考选择与逐镜施工，再编译预览。Codex 负责判断与设计；候选的 ready/reference-only/remote-reference 状态须按真实适配范围使用，检索成功不算已观看成品。
+
 当前只维护三条一级视频流程：
 
 1. `talking-head`：真人口播或已有配音的视频剪辑。

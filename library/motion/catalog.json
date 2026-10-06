@@ -5,6 +5,20 @@
   "implementation_origin": "winter-video-agent",
   "items": [
     {
+      "id": "title-demote-to-label",
+      "purpose": "标题先站稳，再一次缩为持续标签；内容在移位过程中接续建立",
+      "keywords": ["标题", "标签", "章节", "交接", "title", "demote"],
+      "parameters": ["id", "beat", "start", "end", "title", "from", "to", "items", "timing", "style"],
+      "implementation": "library/motion/title-demote-to-label.mjs",
+      "implementation_origin": "adapted-upstream",
+      "design_reference": {
+        "source": "video-talkcraft",
+        "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+        "path": "template/cards/title-demote-to-label.tsx",
+        "adaptation": "复用上游时间参数和交叠调度，标题位置与尺寸共享 cubic inOut；本期几何和内容可配置，未移植 blur、clip-path、装饰条或底板"
+      }
+    },
+    {
       "id": "object-motion",
       "purpose": "同一对象放大、缩小、移位，保持身份并交接到下一阶段",
       "keywords": ["迁移", "对象", "标题", "交接", "移动", "transfer", "title"],

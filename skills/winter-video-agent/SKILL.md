@@ -29,6 +29,8 @@ description: 在 winter-video-agent 项目中制作或续作真人口播增强�
 
 具体命令、分镜字段和环境参数见 [执行说明](references/execution.md)。
 
+内容到方案已接通 [规划入口](references/planning.md)：brief 建内容标注、suggest 按语义与素材推荐、storyboard 关联已分析参考与逐镜施工，再编译预览。Codex 完成语义判断与设计；cards 可跨库检索，ready 与 reference-only 分开，待适配卡不能直接调用。
+
 将计划保存为外部项目 input/semantic-plan.json，登记素材后用 `core.cli plan` 校验和登记版本。已选表达方法可以使用 [可配置编排能力](../../library/motion/README.md)，在外部施工 JSON 中声明对象姿态、成组阶段、证据推进或指标布局，用 `plan --compile` 生成图层。只改本期素材、文字或时序不改模板代码。
 
 每次产物关联计划哈希、素材哈希和模板快照。用户明确给出评价后才运行 review 记录决定，不将生成成功记为审美通过。

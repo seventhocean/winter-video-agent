@@ -8,7 +8,8 @@ import sys
 from pathlib import Path
 
 from .project import digest, external, load, probe, read_json, save, write_json, project_lock
-from . import lifecycle
+from . import lifecycle, planning
+from .reference_catalog import catalog, search
 
 
 def number(value):
@@ -156,6 +157,16 @@ def main():
     add.add_argument('project'); add.add_argument('id'); add.add_argument('path')
     add.add_argument('--origin', default='user-provided')
     ins = sub.add_parser('inspect'); ins.add_argument('project')
+    cards = sub.add_parser('cards', help='Search pinned local cards/cases without treating them as runnable')
+    cards.add_argument('--query', default=''); cards.add_argument('--semantic'); cards.add_argument('--limit', type=int, default=8)
+    content = sub.add_parser('brief', help='Create an annotation skeleton, or register a completed content brief')
+    content.add_argument('project'); content.add_argument('file', nargs='?')
+    picks = sub.add_parser('suggest', help='Rank cards by annotated meaning and available materials')
+    picks.add_argument('project'); picks.add_argument('--top', type=int, default=5)
+    sheet = sub.add_parser('storyboard', help='Validate and link reference analysis, construction sheet and executable motions')
+    sheet.add_argument('project'); sheet.add_argument('file', nargs='?'); sheet.add_argument('--construction')
+    sheet.add_argument('--init', action='store_true', help='Create an editable construction skeleton from the brief')
+    sheet.add_argument('--check', action='store_true')
     prep = sub.add_parser('prepare'); prep.add_argument('project')
     prep.add_argument('--node'); prep.add_argument('--playwright-package'); prep.add_argument('--browser')
     prep.add_argument('--from-project', help='Reuse runtime settings from another external project')
@@ -174,6 +185,10 @@ def main():
     cleaned = sub.add_parser('clean'); cleaned.add_argument('project'); cleaned.add_argument('--apply', action='store_true')
     args = parser.parse_args()
     try:
+        if args.command == 'cards':
+            print(json.dumps(search(catalog(), args.query, args.semantic, args.limit), ensure_ascii=False, indent=2)); return 0
+        if args.command == 'suggest' and not 1 <= args.top <= 10:
+            raise ValueError('top must be 1–10')
         if args.command == 'doctor':
             result = {name: shutil.which(name) for name in ('ffmpeg', 'ffprobe', 'python3')}
             if args.project:
@@ -181,7 +196,8 @@ def main():
             print(json.dumps(result, indent=2)); return 0 if all(result.values()) else 1
         actions = {'new': create, 'asset': asset, 'inspect': inspect, 'preview': preview,
                    'prepare': lifecycle.prepare, 'plan': lifecycle.plan, 'render': lifecycle.render,
-                   'qa': lifecycle.qa, 'review': lifecycle.review, 'deliver': lifecycle.deliver, 'clean': lifecycle.clean}
+                   'qa': lifecycle.qa, 'review': lifecycle.review, 'deliver': lifecycle.deliver, 'clean': lifecycle.clean,
+                   'brief': planning.brief, 'suggest': planning.candidates, 'storyboard': planning.storyboard}
         if args.command == 'asset':
             with project_lock(external(args.project)):
                 result = asset(args)
