@@ -31,6 +31,14 @@ export function validatePlan(plan,project) {
  assert(finite(project.clip?.duration)&&project.clip.duration>0&&finite(project.clip.start)&&project.clip.start>=0,'Invalid clip');
  const interval=o=>finite(o.start)&&finite(o.end)&&o.start>=0&&o.end>o.start&&o.end<=project.clip.duration;
  if(plan.no_mask!==undefined)assert(typeof plan.no_mask==='boolean','Invalid no_mask');
+ if(plan.source_layout!==undefined) {
+  const v=plan.source_layout,c=v.crop||{x:0,y:0,width:1,height:1};
+  assert(['x','y','width','height'].every(k=>finite(v[k])),'Invalid source layout');
+  assert([v.width,v.height].every(n=>Number.isInteger(n)&&n>0&&n%2===0),'Source viewport requires positive even dimensions');
+  assert(v.x<width&&v.y<height&&v.x+v.width>0&&v.y+v.height>0,'Source viewport is outside canvas');
+  assert(['x','y','width','height'].every(k=>finite(c[k]))&&c.x>=0&&c.y>=0&&c.width>0&&c.height>0&&c.x+c.width<=1&&c.y+c.height<=1,'Invalid normalized source crop');
+  assert(/^#[0-9a-f]{6}$/i.test(v.background),'Source stage background requires RGB hex');
+ }
  if(plan.shots!==undefined) {
   assert(Array.isArray(plan.shots)&&plan.shots.length>0,'Missing shots');
   let end=0;const shotIds=new Set();
@@ -52,7 +60,7 @@ export function validatePlan(plan,project) {
  const regions=plan.protected_regions||[];
  for(const r of regions){assert([r.x,r.y,r.width,r.height].every(finite)&&r.width>0&&r.height>0,'Invalid protected region');if(r.start!==undefined||r.end!==undefined)assert(interval(r),'Invalid protected region timing');}
  const relevantRegions=l=>regions.filter(r=>r.start===undefined||(l.start<r.end&&l.end>r.start));
- assert(Array.isArray(plan.layers)&&plan.layers.length>0&&plan.layers.length<=100,'Expected 1–100 layers');
+ assert(Array.isArray(plan.layers)&&plan.layers.length>0&&plan.layers.length<=320,'Expected 1–320 layers');
  const layerIds=new Set();
  for(const l of plan.layers) {
   assert(typeof l.id==='string'&&!layerIds.has(l.id),'Invalid/duplicate layer ID');layerIds.add(l.id);
@@ -75,8 +83,19 @@ export function validatePlan(plan,project) {
    if(l.type==='counter')assert(l.decimals===undefined||Number.isInteger(l.decimals)&&l.decimals>=0&&l.decimals<=3,'Invalid decimal precision');
   }
   if(l.type==='image')assert(project.assets?.[l.asset]?.path&&fs.existsSync(project.assets[l.asset].path),'Missing asset: '+l.asset);
+  // Evidence zooms crop only the supplementary image, never the source video.
+  const validCrop=c=>c&&['x','y','width','height'].every(k=>finite(c[k]))&&c.x>=0&&c.y>=0&&c.width>0&&c.height>0&&c.x+c.width<=1+1e-8&&c.y+c.height<=1+1e-8;
+  if(l.crop!==undefined)assert(l.type==='image'&&validCrop(l.crop),'Invalid image crop: '+l.id);
+  if(l.crop_keyframes!==undefined) {
+   assert(l.type==='image'&&Array.isArray(l.crop_keyframes)&&l.crop_keyframes.length>=2,'Crop keyframes require image and at least two crops');
+   let previous=l.start;
+   for(const [i,c] of l.crop_keyframes.entries()) {
+    assert(validCrop(c)&&finite(c.t)&&(i===0?c.t===l.start:c.t>previous)&&c.t<=l.end,'Invalid image crop keyframe: '+l.id);
+    previous=c.t;
+   }
+  }
   if(l.keyframes) {
-   assert(l.type==='image'&&Array.isArray(l.keyframes)&&l.keyframes.length>=2,'Keyframes require image and at least two poses');
+   assert(['image','text','counter','line'].includes(l.type)&&Array.isArray(l.keyframes)&&l.keyframes.length>=2,'Keyframes require a drawable object and at least two poses');
    let previous=l.start;
    const poses=[l];
    for(const [i,k] of l.keyframes.entries()) {
@@ -91,9 +110,15 @@ export function validatePlan(plan,project) {
     for(const r of relevantRegions(l))assert(!(x<r.x+r.width&&right>r.x&&y<r.y+r.height&&bottom>r.y),'Motion intersects protected region: '+l.id);
    }
   }
-  const s=l.style||{},nums=['fontSize','fontWeight','radius','borderWidth','padding'],colors=['color','background','borderColor'];
+  if(l.keyframe_easing!==undefined)assert(['ease-out','in-out','linear'].includes(l.keyframe_easing),'Invalid keyframe easing: '+l.id);
+  if(l.travel!==undefined) {
+   assert(l.type==='connector'&&Array.isArray(l.travel)&&l.travel.length>0,'Travel requires connector: '+l.id);
+   for(const leg of l.travel)assert(finite(leg.start)&&finite(leg.end)&&leg.start>=l.active_at&&leg.end>leg.start&&leg.end<=l.end,'Invalid connector travel: '+l.id);
+  }
+  const s=l.style||{},nums=['fontSize','fontWeight','radius','borderWidth','padding','strokeWidth'],colors=['color','background','borderColor','strokeColor'];
   if(plan.no_mask)assert(l.type!=='panel'&&!s.background,'no_mask forbids panels and background fills: '+l.id);
-  for(const k of Object.keys(s))assert([...nums,...colors,'align','fit'].includes(k),'Unknown style: '+k);
+  for(const k of Object.keys(s))assert([...nums,...colors,'align','fit','shadow'].includes(k),'Unknown style: '+k);
+  if(s.shadow!==undefined)assert(typeof s.shadow==='boolean','Invalid shadow: '+l.id);
   for(const k of nums)if(k in s)assert(finite(s[k])&&s[k]>=0,'Invalid '+k);
   for(const k of colors)if(k in s)assert(/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s[k]),'Use hex colors: '+k);
   if(s.align)assert(['left','center','right'].includes(s.align),'Invalid align');

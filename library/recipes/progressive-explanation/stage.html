@@ -11,7 +11,7 @@ function valueAt(l,t){
 function pose(l,t){
  const keys=l.keyframes;if(!keys)return l;
  if(t<=keys[0].t)return keys[0];
- for(let i=1;i<keys.length;i++)if(t<keys[i].t){const a=keys[i-1],b=keys[i],p=ease((t-a.t)/(b.t-a.t));return Object.fromEntries(['x','y','width','height'].map(k=>[k,a[k]+(b[k]-a[k])*p]));}
+ for(let i=1;i<keys.length;i++)if(t<keys[i].t){const a=keys[i-1],b=keys[i],raw=clamp((t-a.t)/(b.t-a.t)),p=l.keyframe_easing==='linear'?raw:l.keyframe_easing==='in-out'?(raw<.5?4*raw**3:1-(-2*raw+2)**3/2):ease(raw);return Object.fromEntries(['x','y','width','height'].map(k=>[k,a[k]+(b[k]-a[k])*p]));}
  return keys[keys.length-1];
 }
 function anchor(l,t,side){const p=pose(l,t);return {x:p.x+p.width*({left:0,right:1}[side]??.5),y:p.y+p.height*({top:0,bottom:1}[side]??.5)};}
@@ -21,10 +21,18 @@ window.setup=({plan,assets})=>{
  layers=plan.layers.map(layer=>{
   const node=document.createElement('div'),s=layer.style||{};node.className='layer';node.dataset.layer=layer.id;
   Object.assign(node.style,{left:layer.x+'px',top:layer.y+'px',width:layer.width+'px',height:layer.height+'px',fontSize:(s.fontSize||24)+'px',fontWeight:s.fontWeight||400,color:s.color||'#ffffff',background:s.background||'transparent',borderRadius:(s.radius||0)+'px',padding:(s.padding||0)+'px',border:s.borderWidth?s.borderWidth+'px solid '+(s.borderColor||'#ffffff'):'none',textAlign:s.align||'left',opacity:0});
-  if(layer.type==='image'){const im=document.createElement('img');im.src=assets[layer.asset];im.style.objectFit=s.fit||'contain';node.append(im);}
-  if(['text','counter'].includes(layer.type)){node.textContent=layer.type==='text'?layer.text:layer.values[0].value.toFixed(layer.decimals||0);node.style.fontVariantNumeric='tabular-nums';if(plan.no_mask)node.style.textShadow='0 1px 2px #000, 0 2px 5px #000, 1px 0 1px #000, -1px 0 1px #000';}
+  if(layer.type==='image'){
+   const im=document.createElement('img');im.src=assets[layer.asset];im.style.objectFit=s.fit||'contain';
+   if(layer.crop||layer.crop_keyframes){const view=document.createElement('div');view.className='crop-window';view.style.position='absolute';view.style.overflow='hidden';view.append(im);node.append(view);}
+   else node.append(im);
+  }
+  if(['text','counter'].includes(layer.type)){
+   node.textContent=layer.type==='text'?layer.text:layer.values[0].value.toFixed(layer.decimals||0);node.style.fontVariantNumeric='tabular-nums';
+   if(s.strokeWidth){node.style.webkitTextStroke=s.strokeWidth+'px '+(s.strokeColor||'#111111');node.style.paintOrder='stroke fill';if(s.shadow!==false)node.style.textShadow='0 2px 1px #111111';}
+   else if(plan.no_mask&&s.shadow!==false)node.style.textShadow='0 1px 2px #000, 0 2px 5px #000, 1px 0 1px #000, -1px 0 1px #000';
+  }
   if(layer.type==='line'){node.style.background=s.color||'#73e6ce';node.style.transformOrigin=layer.height>layer.width?'center top':'left center';}
-  let trace,base;
+  let trace,base,packet;
   if(layer.type==='bar'){
    const svg=svgElement('svg',{width:'100%',height:'100%',viewBox:`0 0 ${layer.width} ${layer.height}`});
    base=svgElement('rect',{x:0,y:0,width:layer.width,height:layer.height,rx:Math.min(s.radius||0,layer.height/2),fill:s.color||'#73e6ce',opacity:.16});
@@ -36,18 +44,26 @@ window.setup=({plan,assets})=>{
    base=svgElement('path',{fill:'none',stroke:'#788b91','stroke-width':2,opacity:.6});
    trace=svgElement('path',{fill:'none',stroke:s.color||'#73e6ce','stroke-width':3,pathLength:1,'stroke-dasharray':1,'stroke-linecap':'round'});
    svg.append(base,trace);node.append(svg);
+   if(layer.travel){packet=svgElement('circle',{r:6,fill:s.color||'#73e6ce',stroke:'#F8FAFD','stroke-width':2});svg.append(packet);}
   }
-  stage.append(node);return {layer,node,trace,base};
+  stage.append(node);return {layer,node,trace,base,packet};
  });
 };
 window.seek=t=>{
  const byId=new Map(layers.map(({layer:l})=>[l.id,l]));
- for(const {layer:l,node:n,trace,base} of layers){
+ for(const {layer:l,node:n,trace,base,packet} of layers){
   const m=l.motion||{kind:'reveal',duration:.35},p=ease((t-l.start)/m.duration);
   const visible=t>=l.start&&t<l.end;
   const fade=l.end<window.planDuration?clamp((l.end-t)/.15):1;
   n.style.opacity=visible?(m.kind==='none'?1:p)*fade:0;
-  if(l.keyframes){const q=pose(l,t);Object.assign(n.style,{left:q.x+'px',top:q.y+'px',width:q.width+'px',height:q.height+'px'});}
+  if(l.keyframes){const q=pose(l,t);Object.assign(n.style,{left:q.x+'px',top:q.y+'px',width:q.width+'px',height:q.height+'px'});if(['text','counter'].includes(l.type))n.style.fontSize=(l.style?.fontSize||24)*q.width/l.width+'px';}
+  if(l.type==='image'&&(l.crop||l.crop_keyframes)){
+   const q=pose(l,t),c=pose({...l.crop,keyframes:l.crop_keyframes},t),im=n.querySelector('img'),view=n.querySelector('.crop-window');
+   const iw=im.naturalWidth,ih=im.naturalHeight,cw=c.width*iw,ch=c.height*ih;
+   const scale=(l.style?.fit==='cover'?Math.max:Math.min)(q.width/cw,q.height/ch);
+   Object.assign(view.style,{width:cw*scale+'px',height:ch*scale+'px',left:(q.width-cw*scale)/2+'px',top:(q.height-ch*scale)/2+'px'});
+   Object.assign(im.style,{position:'absolute',width:iw*scale+'px',height:ih*scale+'px',left:-c.x*iw*scale+'px',top:-c.y*ih*scale+'px',objectFit:'fill'});
+  }
   if(l.type==='counter')n.textContent=valueAt(l,t).toFixed(l.decimals||0);
   if(l.type==='bar')trace.setAttribute('width',l.width*valueAt(l,t));
   if(l.type==='connector'){
@@ -57,6 +73,7 @@ window.seek=t=>{
    const d=vertical?`M ${ax} ${ay} C ${ax} ${mid}, ${bx} ${mid}, ${bx} ${by}`:`M ${ax} ${ay} C ${mid} ${ay}, ${mid} ${by}, ${bx} ${by}`;
    base.setAttribute('d',d);trace.setAttribute('d',d);
    trace.style.strokeDashoffset=1-ease((t-l.active_at)/m.duration);trace.style.opacity=t>=l.active_at?1:0;
+   if(packet){const leg=l.travel.find(v=>t>=v.start&&t<v.end);packet.style.opacity=leg?1:0;if(leg){const p=trace.getPointAtLength(trace.getTotalLength()*clamp((t-leg.start)/(leg.end-leg.start)));packet.setAttribute('cx',p.x);packet.setAttribute('cy',p.y);}}
   }
   let transform='none';
   if(m.kind==='reveal')transform='translateY('+(12*(1-p))+'px)';
@@ -69,8 +86,9 @@ window.measure=()=>{
  const failures=[];
  for(const {layer:l,node:n}of layers)if(['text','counter'].includes(l.type)){
   const original=n.textContent,values=l.type==='counter'?l.values.map(k=>k.value.toFixed(l.decimals||0)):[original];
-  for(const value of values){n.textContent=value;if(n.scrollHeight>n.clientHeight||n.scrollWidth>n.clientWidth){failures.push(l.id);break;}}
-  n.textContent=original;
+  const originalStyle=n.getAttribute('style');
+  for(const q of [l,...(l.keyframes||[])]){Object.assign(n.style,{width:q.width+'px',height:q.height+'px',fontSize:(l.style?.fontSize||24)*q.width/l.width+'px'});for(const value of values){n.textContent=value;if(n.scrollHeight>n.clientHeight||n.scrollWidth>n.clientWidth){failures.push(l.id);break;}}if(failures.includes(l.id))break;}
+  n.textContent=original;n.setAttribute('style',originalStyle);
  }
  return failures;
 };

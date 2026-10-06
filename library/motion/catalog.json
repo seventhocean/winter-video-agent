@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "workflow": "talking-head",
+  "implementation": "library/motion/choreography.mjs",
+  "implementation_origin": "winter-video-agent",
+  "items": [
+    {
+      "id": "object-motion",
+      "purpose": "同一对象放大、缩小、移位，保持身份并交接到下一阶段",
+      "keywords": ["迁移", "对象", "标题", "交接", "移动", "transfer", "title"],
+      "parameters": ["id", "beat", "type", "asset或text", "poses", "end", "style"],
+      "design_reference": {
+        "source": "video-shotcraft",
+        "commit": "e2d8928c57ef84701f9b0119ca4a1c28a62050c1",
+        "path": "demos/typography/title-demote-to-label/TitleDemoteToLabel.tsx",
+        "adaptation": "参考标题站稳后移位并延续的动作逻辑；使用自有关键帧求值，不复制上游样式或代码"
+      }
+    },
+    {
+      "id": "group-sequence",
+      "purpose": "按内容成组出现、展开、排列与收拢；各对象跨阶段保持身份",
+      "keywords": ["成组", "展开", "收拢", "并列", "累积", "group", "sequence"],
+      "parameters": ["id", "beat", "items", "phases", "end", "stagger"],
+      "design_reference": {
+        "source": "video-talkcraft",
+        "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+        "path": "template/cards/parallel-items-with-host.tsx",
+        "adaptation": "参考按口播逐项出现与同组累积；位置、尺寸、人物与色板由单期决定，不照搬抠像或重构图"
+      }
+    },
+    {
+      "id": "evidence-focus",
+      "purpose": "真实截图整体建立后推进到相关细节，保持素材身份",
+      "keywords": ["证据", "截图", "放大", "细节", "evidence", "zoom"],
+      "parameters": ["id", "beat", "asset", "views", "end", "style"],
+      "design_reference": {
+        "source": "winter-video-agent",
+        "path": "library/recipes/progressive-explanation/RECIPE.md",
+        "adaptation": "整理既有 image.crop_keyframes 能力；只改变补充截图的观看区域，不裁原片"
+      }
+    },
+    {
+      "id": "metric-card",
+      "purpose": "有真实可比数据时，让计数、比例条、单位与结论成组展开",
+      "keywords": ["数字", "指标", "比较", "比例", "计数", "metric", "chart"],
+      "parameters": ["id", "beat", "x", "y", "width", "start", "end", "headline", "unit", "context", "rows", "scale", "theme"],
+      "design_reference": {
+        "source": "user-reference",
+        "path": "SaveTik.co_7665543600142404864-hd.mp4",
+        "adaptation": "参考已分析的农场规模数字与比较条，复用自有 metric-card.mjs；数据、配色与布局按本期确定"
+      }
+    }
+  ]
+}

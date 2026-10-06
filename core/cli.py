@@ -1,6 +1,5 @@
-"""Small, dependency-free project and image-motion preview CLI."""
+"""External talking-head project lifecycle; creative decisions remain with Codex."""
 import argparse
-import hashlib
 import json
 import math
 import shutil
@@ -8,46 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
-
-
-def read_json(path):
-    return json.loads(path.read_text(encoding='utf-8'))
-
-
-def write_json(path, value):
-    temporary = path.with_suffix('.tmp')
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    temporary.replace(path)
-
-
-def external(path):
-    result = Path(path).expanduser().resolve()
-    if result == REPO or REPO in result.parents:
-        raise ValueError('Video projects and outputs must live outside the Agent repository')
-    return result
-
-
-def probe(path):
-    return json.loads(subprocess.check_output([
-        'ffprobe', '-v', 'error', '-show_format', '-show_streams', '-of', 'json', str(path)
-    ], text=True))
-
-
-def save(project, value):
-    write_json(project / 'project.json', value)
-
-
-def load(project):
-    return read_json(project / 'project.json')
-
-
-def digest(path):
-    h = hashlib.sha256()
-    with path.open('rb') as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
-            h.update(chunk)
-    return h.hexdigest()
+from .project import digest, external, load, probe, read_json, save, write_json, project_lock
+from . import lifecycle
 
 
 def number(value):
@@ -79,21 +40,26 @@ def create(args):
     source = Path(args.source).expanduser().resolve(strict=True)
     metadata = probe(source)
     video = next(s for s in metadata['streams'] if s['codec_type'] == 'video')
-    if args.start < 0 or args.duration <= 0 or args.start + args.duration > float(metadata['format']['duration']):
+    if not all(math.isfinite(v) for v in (args.start, args.duration, args.fps)) or args.start < 0 or args.duration <= 0 or args.start + args.duration > float(metadata['format']['duration']) + .001:
         raise ValueError('Requested excerpt lies outside source duration')
+    if args.width < 320 or args.width > 4096 or args.width % 2 or not 0 < args.fps <= 60:
+        raise ValueError('Width must be even, 320–4096; fps must be 0–60')
+    height = round(args.width * video['height'] / video['width'] / 2) * 2
+    if height < 320 or height > 4096:
+        raise ValueError('Source aspect ratio produces an unsupported output height')
     for name in ('input', 'decisions', 'work', 'preview', 'delivery'):
         (project / name).mkdir(parents=True, exist_ok=True)
     save(project, {
         'schema_version': 1, 'project_id': project.name,
-        'primary_workflow': 'talking-head', 'status': 'prepared',
+        'primary_workflow': 'talking-head', 'status': 'draft',
         'source': {'path': str(source), 'bytes': source.stat().st_size,
                    'sha256': digest(source), 'metadata': metadata},
         'clip': {'start': args.start, 'duration': args.duration},
-        'format': {'width': 1280, 'height': round(1280 * video['height'] / video['width'] / 2) * 2, 'fps': 30},
+        'format': {'width': args.width, 'height': height, 'fps': args.fps},
         'assets': {}, 'artifacts': [],
         'notes': ['Keep original speech, edits and burned-in subtitles.']
     })
-    return {'project': str(project), 'status': 'prepared'}
+    return {'project': str(project), 'status': 'draft'}
 
 
 def asset(args):
@@ -110,17 +76,21 @@ def inspect(args):
     project = external(args.project)
     value = load(project)
     files = [p for p in project.rglob('*') if p.is_file() and not p.is_symlink()]
-    return {'project': value, 'local_bytes': sum(p.stat().st_size for p in files),
+    inventory = {name: {'files': sum(name in p.relative_to(project).parts[:1] for p in files),
+                        'bytes': sum(p.stat().st_size for p in files if name in p.relative_to(project).parts[:1])}
+                 for name in ('input', 'decisions', 'work', 'preview', 'render', 'delivery')}
+    return {'project': value, 'local_bytes': sum(p.stat().st_size for p in files), 'storage': inventory,
             'files': [str(p.relative_to(project)) for p in files],
             'missing_assets': [k for k, a in value['assets'].items() if not Path(a['path']).exists()]}
 
 
-def render(args):
+def legacy_preview(args):
     project = external(args.project)
     value = load(project)
     plan = read_json(project / 'input' / 'motion.json')
     duration = value['clip']['duration']
     width, height, fps = (value['format'][k] for k in ('width', 'height', 'fps'))
+    args.output = args.output or 'preview-v1.mp4'
     output = project / 'preview' / args.output
     if Path(args.output).name != args.output or not args.output.endswith('.mp4'):
         raise ValueError('Output must be a simple .mp4 filename')
@@ -160,43 +130,71 @@ def render(args):
     return {'preview': str(output), 'review': 'awaiting-user'}
 
 
+def preview(args):
+    if (external(args.project) / 'input/semantic-plan.json').is_file():
+        if args.output and (Path(args.output).name != args.output or not args.output.endswith('.mp4')):
+            raise ValueError('Output must be a simple .mp4 filename; use --version for semantic previews')
+        return lifecycle.render(args)
+    if args.shot or args.at is not None or args.version:
+        raise ValueError('Register a semantic plan before using semantic preview options')
+    with project_lock(external(args.project)):
+        return legacy_preview(args)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
-    sub.add_parser('doctor')
+    doctor = sub.add_parser('doctor')
+    doctor.add_argument('project', nargs='?', help='Also verify this project runtime')
     new = sub.add_parser('new')
     new.add_argument('project'); new.add_argument('--source', required=True)
     new.add_argument('--start', type=float, default=0)
     new.add_argument('--duration', type=float, default=10)
+    new.add_argument('--width', type=int, default=1280)
+    new.add_argument('--fps', type=float, default=30)
     add = sub.add_parser('asset')
     add.add_argument('project'); add.add_argument('id'); add.add_argument('path')
     add.add_argument('--origin', default='user-provided')
     ins = sub.add_parser('inspect'); ins.add_argument('project')
+    prep = sub.add_parser('prepare'); prep.add_argument('project')
+    prep.add_argument('--node'); prep.add_argument('--playwright-package'); prep.add_argument('--browser')
+    prep.add_argument('--from-project', help='Reuse runtime settings from another external project')
+    planned = sub.add_parser('plan'); planned.add_argument('project'); planned.add_argument('file', nargs='?')
+    planned.add_argument('--check', action='store_true'); planned.add_argument('--compile', action='store_true')
     ren = sub.add_parser('preview'); ren.add_argument('project')
-    ren.add_argument('--output', default='preview-v1.mp4')
+    ren.add_argument('--output', help='Legacy filename or semantic version filename')
+    ren.add_argument('--version'); ren.add_argument('--shot'); ren.add_argument('--at', type=float)
+    full = sub.add_parser('render'); full.add_argument('project'); full.add_argument('--version')
+    checked = sub.add_parser('qa'); checked.add_argument('project'); checked.add_argument('artifact')
+    reviewed = sub.add_parser('review'); reviewed.add_argument('project'); reviewed.add_argument('artifact')
+    reviewed.add_argument('--verdict', required=True, choices=['approved', 'changes-requested'])
+    reviewed.add_argument('--feedback', required=True)
+    delivery = sub.add_parser('deliver'); delivery.add_argument('project'); delivery.add_argument('artifact')
+    delivery.add_argument('--destination', help='External .mp4 destination; default is project delivery/')
+    cleaned = sub.add_parser('clean'); cleaned.add_argument('project'); cleaned.add_argument('--apply', action='store_true')
     args = parser.parse_args()
-    task_lock = None
     try:
-        if args.command in ('asset', 'preview'):
-            task_lock = external(args.project) / '.semantic.lock'
-            try:
-                with task_lock.open('x') as stream:
-                    stream.write(json.dumps({'command': args.command}))
-            except FileExistsError:
-                task_lock = None
-                raise ValueError('Project is busy: .semantic.lock exists')
         if args.command == 'doctor':
             result = {name: shutil.which(name) for name in ('ffmpeg', 'ffprobe', 'python3')}
+            if args.project:
+                result['runtime'] = lifecycle.validate_runtime(lifecycle.runtime_for(external(args.project)))
             print(json.dumps(result, indent=2)); return 0 if all(result.values()) else 1
-        result = {'new': create, 'asset': asset, 'inspect': inspect, 'preview': render}[args.command](args)
+        actions = {'new': create, 'asset': asset, 'inspect': inspect, 'preview': preview,
+                   'prepare': lifecycle.prepare, 'plan': lifecycle.plan, 'render': lifecycle.render,
+                   'qa': lifecycle.qa, 'review': lifecycle.review, 'deliver': lifecycle.deliver, 'clean': lifecycle.clean}
+        if args.command == 'asset':
+            with project_lock(external(args.project)):
+                result = asset(args)
+        else:
+            result = actions[args.command](args)
+        metadata = load(external(args.project))
+        result = {'project_path': str(external(args.project)), 'workflow': metadata['primary_workflow'],
+                  'status': metadata['status'], **result}
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
-    except (ValueError, KeyError, OSError, StopIteration, subprocess.CalledProcessError) as error:
+    except (ValueError, KeyError, TypeError, OSError, StopIteration, subprocess.CalledProcessError) as error:
         print(json.dumps({'error': str(error)}, ensure_ascii=False), file=sys.stderr)
         return 1
-    finally:
-        if task_lock is not None:
-            task_lock.unlink(missing_ok=True)
 
 
 if __name__ == '__main__':

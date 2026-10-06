@@ -4,7 +4,9 @@ Winter Video Agent 是一个在 Codex 中直接使用的个人视频制作 Agent
 
 当前已有外部项目管理、素材登记、数据驱动的递进解释配方、分镜版本、预览及用户反馈记录。Codex 在本仓库读取 [制作入口](skills/winter-video-agent/SKILL.md) 即可组织这些工具。完整 TalkCraft 流程、自动转写对齐和其他两条生产线仍未接通。旧的 `Winter-video-workspace` 不是本项目的运行依赖。
 
-口播配方现支持图片关键帧重排、跟随对象的曲线与关系点亮、按时段生效的人物保护区，已用16秒独立镜头实际渲染。效果待用户审阅，见 [动态关系阶段记录](docs/milestone-dynamic-relations.md)。
+口播公共命令已覆盖 `new → prepare → plan → preview → render → deliver → clean`，运行环境保存在外部项目中。已有 [可配置编排能力](library/motion/README.md) 支持对象迁移、成组展开、真实证据推进及指标比较；Codex 根据参考和内容做设计，命令执行计划。用法见 [执行说明](skills/winter-video-agent/references/execution.md)。
+
+口播配方支持图片关键帧重排、跟随对象的曲线与关系点亮、按时段生效的人物保护区。「AI 帮我换手机」97秒全片已获用户确认并交付。该案例用于建立 [参考驱动的剪辑方法](docs/talking-head-editing-method.md)：先分析用户案例和素材库成品，完成逐镜编排，再选择实现；每期的元素、配色与动效按内容重新决定。
 
 ## 三条视频流程
 
@@ -44,6 +46,8 @@ git submodule update --init --recursive
 
 ## 当前文档
 
+- [口播剪辑方法与已确认案例](docs/talking-head-editing-method.md)
+- [口播公共执行链与第二段验证](docs/milestone-talking-head-runner.md)
 - [上游项目剖析](docs/upstream-inventory.md)
 - [代码吸收与实现计划](docs/reuse-plan.md)
 - [三条流程契约](docs/workflow-contracts.md)
