@@ -15,6 +15,8 @@
 
 新口播设计使用 `brief → suggest → storyboard` 记录语义、参考选择与逐镜施工，再编译预览。Codex 负责判断与设计；候选的 ready/reference-only/remote-reference 状态须按真实适配范围使用，检索成功不算已观看成品。
 
+新制作优先继承对应上游的完整生产结构和原生镜头，具体见 [生产路由](docs/production-routing.md)。自有口播图层是已接通的执行能力，不代表已经继承 TalkCraft 完整流程；不得为适配它而把上游成熟镜头普遍重写为简化图层。
+
 当前只维护三条一级视频流程：
 
 1. `talking-head`：真人口播或已有配音的视频剪辑。

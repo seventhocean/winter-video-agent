@@ -48,6 +48,8 @@ git submodule update --init --recursive
 
 ## 当前文档
 
+新制作的优先级和真实接通情况见 [生产流程的选择与继承](docs/production-routing.md)。下一项工作是接通 TalkCraft 原生生产实例；当前检索与自有口播配方不代表完整上游流程已经运行。
+
 - [口播剪辑方法与已确认案例](docs/talking-head-editing-method.md)
 - [口播公共执行链与第二段验证](docs/milestone-talking-head-runner.md)
 - [内容到方案入口与真实片段验证](docs/milestone-content-planning.md)
