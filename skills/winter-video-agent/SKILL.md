@@ -5,7 +5,7 @@ description: 在 winter-video-agent 项目中制作或续作真人口播增强�
 
 # Winter Video Agent
 
-这是仓库配套入口，命令从仓库根目录执行。能力状态：真人口播的项目、运行环境、语义计划、预览、全片渲染、交付和帧缓存清理已接通公共命令，已有单期全片交付案例；自动转写对齐、产品宣传和知识讲解生产线尚未接通，不能承诺已支持。
+这是仓库配套入口，命令从仓库根目录执行。能力状态：真人口播已接通三项原生 TalkCraft TSX 的外部实例、预览和公共反馈入口，已有 4:3 有声试跑；既有语义配方具备项目、全片渲染、交付和帧缓存清理。完整 TalkCraft 自动制作、自动转写对齐、产品宣传和知识讲解生产线尚未接通，不能承诺已支持。
 
 ## 开始或续作
 
@@ -15,6 +15,8 @@ description: 在 winter-video-agent 项目中制作或续作真人口播增强�
 - 检查原片画面、原字幕和口播内容。没有精确转写时标明语义时序依据，不把手工抽帧定位说成字级对齐。
 
 ## 制作决策
+
+- 新口播的原生试跑使用 [TalkCraft 原生执行](references/native-talkcraft.md)：`prepare/preview/render --engine talkcraft-native` 读取本期原生 SHOTBOOK 和 TSX。优先复用已接通卡片；缺卡时按准确上游源码适配，不自动退回通用图层。原生配置和既有 semantic-plan 分开保存。
 
 - 新制作先读 [生产流程的选择与继承](../../docs/production-routing.md)。优先运行并继承对应上游模板、原生组件和内部制作结构，再适配本期内容。当前自有口播配方支持既有项目续作与局部补充；完整原生 TalkCraft 尚未接通时，先完成生产适配，不以检索覆盖或把卡片重新翻译成普通图层代替接通。产品和讲解保留各自原生结构。
 
@@ -34,6 +36,8 @@ description: 在 winter-video-agent 项目中制作或续作真人口播增强�
 内容到方案已接通 [规划入口](references/planning.md)：brief 建内容标注、suggest 按语义与素材推荐、storyboard 关联已分析参考与逐镜施工，再编译预览。Codex 完成语义判断与设计；cards 可跨库检索，ready 与 reference-only 分开，待适配卡不能直接调用。
 
 将计划保存为外部项目 input/semantic-plan.json，登记素材后用 `core.cli plan` 校验和登记版本。已选表达方法可以使用 [可配置编排能力](../../library/motion/README.md)，在外部施工 JSON 中声明对象姿态、成组阶段、证据推进或指标布局，用 `plan --compile` 生成图层。只改本期素材、文字或时序不改模板代码。
+
+以上 `semantic-plan` 执行步骤仅用于已有配方。原生 TalkCraft 走 `input/talkcraft-shotbook.json` 和对应原生执行入口，不转换成该配方。
 
 每次产物关联计划哈希、素材哈希和模板快照。用户明确给出评价后才运行 review 记录决定，不将生成成功记为审美通过。
 

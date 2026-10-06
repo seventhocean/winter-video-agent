@@ -1,6 +1,7 @@
 """Read pinned local references. Search results never imply a watched or runnable video."""
 import subprocess
 from collections import Counter
+from pathlib import Path
 
 from .project import REPO, digest, read_json
 
@@ -25,6 +26,8 @@ def catalog():
     upstreams = sources()
     talk = upstreams['video-talkcraft']
     talk_index = read_json(REPO / talk['path'] / 'references/cards-index.json')
+    native = read_json(REPO / 'library/talkcraft-native/provenance.json')
+    native_cards = {Path(item['original_path']).stem: item for item in native['adaptations']} if native['commit'] == talk['commit'] else {}
     cards = []
     for original in talk_index['cards']:
         slug = original['slug']
@@ -33,6 +36,9 @@ def catalog():
                 'code': local(talk, original['code']), 'preview': local(talk, f'gallery/thumbs/{slug}.png'),
                 'methods': ['title-demote-to-label'] if slug == 'title-demote-to-label' else [],
                 'availability': 'ready' if slug == 'title-demote-to-label' else 'reference-only'}
+        if slug in native_cards:
+            card.update({'availability': 'native-ready', 'engine': 'talkcraft-native',
+                         'native_code': str(REPO / native_cards[slug]['adaptation'])})
         cards.append(card)
     shot = upstreams['video-shotcraft']
     for original in read_json(REPO / shot['path'] / 'gallery/api/library.json')['cards']:
@@ -66,7 +72,7 @@ def catalog():
                       'semantics': [], 'inputs': [], 'methods': [],
                       'reference': local(case_source, 'prompts/' + item['slug'] + '.md'),
                       'post_url': item['post_url'], 'poster_url': item['poster_url']})
-    files = ['library/planning/references.json', 'library/planning/provenance.json',
+    files = ['library/planning/references.json', 'library/planning/provenance.json', 'library/talkcraft-native/provenance.json',
              'library/motion/catalog.json', 'library/sources.json',
              talk['path'] + '/references/cards-index.json', shot['path'] + '/gallery/api/library.json',
              case_source['path'] + '/data/videos.json']

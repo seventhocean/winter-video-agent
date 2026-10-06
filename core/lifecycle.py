@@ -173,6 +173,15 @@ def qa(args):
 
 def review(args):
     project = external(args.project)
+    with project_lock(project):
+        metadata = load(project)
+        artifact = find_artifact(metadata, args.artifact)
+        if artifact.get('engine') == 'talkcraft-native':
+            artifact['review'] = args.verdict
+            artifact.setdefault('feedback', []).append({'at': now(), 'verdict': args.verdict, 'text': args.feedback})
+            metadata['native_trial'] = {'status': args.verdict, 'artifact': artifact['path']}
+            save(project, metadata)
+            return {'artifact': artifact['path'], 'visual_review': args.verdict, 'feedback': args.feedback}
     return run_node(project, 'semantic-plan.mjs', ['review', project, args.artifact, args.verdict, args.feedback])
 
 
@@ -181,7 +190,8 @@ def deliver(args):
     with project_lock(project):
         metadata = load(project)
         artifact = find_artifact(metadata, args.artifact)
-        if artifact.get('plan_hash') != metadata.get('plan', {}).get('hash'):
+        plan_key = 'native_plan' if artifact.get('engine') == 'talkcraft-native' else 'plan'
+        if artifact.get('plan_hash') != metadata.get(plan_key, {}).get('hash'):
             raise ValueError('Choose an artifact of the current registered plan')
         report = media_check(metadata, artifact)
         if report['scope'] != 'full-clip':

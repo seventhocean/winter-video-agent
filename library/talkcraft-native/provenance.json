@@ -1,0 +1,33 @@
+{
+  "source": "video-talkcraft",
+  "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+  "license": "library/talkcraft-native/LICENSE.upstream",
+  "authorization_record": "AGENTS.md",
+  "adaptations": [
+    {
+      "original_path": "template/cards/doc-park-left-pill-deal.tsx",
+      "original_sha256": "874d90c93efd1a9334970629d0a29f67fdb2f8900135174b2c6a882ec0d7a74b",
+      "original_copy": "library/talkcraft-native/original/doc-park-left-pill-deal.tsx",
+      "adaptation": "library/talkcraft-native/cards/doc-park-left-pill-deal.tsx",
+      "changes": "Expose config/background/CSS for per-episode timing and transparent overlay; preserve native animation calculations. Media demo supports real assets and disabling its demo presenter. Expose rowGap for enlarged overlay text; native default row spacing and note offset remain 100/60."
+    },
+    {
+      "original_path": "template/cards/grid-to-hero.tsx",
+      "original_sha256": "e9e550223301f791e46e0afc60c5d1ab171fc777c81ca130b56ef2951cf389f4",
+      "original_copy": "library/talkcraft-native/original/grid-to-hero.tsx",
+      "adaptation": "library/talkcraft-native/cards/grid-to-hero.tsx",
+      "changes": "Expose config/background/CSS for per-episode timing and transparent overlay; preserve native animation calculations. Media demo supports real assets and disabling its demo presenter."
+    },
+    {
+      "original_path": "template/cards/media-pop-in.tsx",
+      "original_sha256": "7156764244dd7ac4840e19b12c15ccbe72f4c38e4d5d9b168882a9f577494552",
+      "original_copy": "library/talkcraft-native/original/media-pop-in.tsx",
+      "adaptation": "library/talkcraft-native/cards/media-pop-in.tsx",
+      "changes": "Expose config/background/CSS for per-episode timing and transparent overlay; preserve native animation calculations. Media demo supports real assets and disabling its demo presenter."
+    }
+  ],
+  "runtime_originals": [
+    "runtime/package.json",
+    "runtime/package-lock.json"
+  ]
+}

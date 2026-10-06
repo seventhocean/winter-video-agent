@@ -4,6 +4,8 @@ Winter Video Agent 是一个在 Codex 中直接使用的个人视频制作 Agent
 
 当前已有外部项目管理、素材登记、数据驱动的递进解释配方、分镜版本、预览及用户反馈记录。Codex 在本仓库读取 [制作入口](skills/winter-video-agent/SKILL.md) 即可组织这些工具。完整 TalkCraft 流程、自动转写对齐和其他两条生产线仍未接通。旧的 `Winter-video-workspace` 不是本项目的运行依赖。
 
+TalkCraft 原生执行已接通 3 个 TSX 镜头组件，用「AI 帮我换手机」人工初剪原片完成 17.6 秒的 4:3 有声试跑，待用户评价。`prepare/preview/render --engine talkcraft-native` 保留原生 SHOTBOOK 和组件计算；依赖在仓库外共享缓存，每版实例在外部视频项目。用法见 [原生执行说明](skills/winter-video-agent/references/native-talkcraft.md)。
+
 口播公共命令已覆盖 `new → prepare → plan → preview → render → deliver → clean`，运行环境保存在外部项目中。已有 [可配置编排能力](library/motion/README.md) 支持对象迁移、成组展开、真实证据推进及指标比较；Codex 根据参考和内容做设计，命令执行计划。用法见 [执行说明](skills/winter-video-agent/references/execution.md)。
 
 内容到方案已接通 `brief → suggest → storyboard → plan --compile`。本地检索覆盖 108 张 TalkCraft 卡、157 张 ShotCraft 卡、282 个视觉案例，另有整理的讲解成品与组件资产入口；按语义和素材推荐可行候选，记录实际参考分析、逐镜施工与动作实现。[规划用法](skills/winter-video-agent/references/planning.md) 说明字段和范围；检索数量不等于可直接调用的效果数量。
@@ -48,7 +50,7 @@ git submodule update --init --recursive
 
 ## 当前文档
 
-新制作的优先级和真实接通情况见 [生产流程的选择与继承](docs/production-routing.md)。下一项工作是接通 TalkCraft 原生生产实例；当前检索与自有口播配方不代表完整上游流程已经运行。
+新制作的优先级和真实接通情况见 [生产流程的选择与继承](docs/production-routing.md)。三项原生组件已完成实际预览，后续依据反馈完善适配和时间戳；当前检索数量与自有口播配方不代表完整上游流程已经运行。
 
 - [口播剪辑方法与已确认案例](docs/talking-head-editing-method.md)
 - [口播公共执行链与第二段验证](docs/milestone-talking-head-runner.md)

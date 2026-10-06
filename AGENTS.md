@@ -11,9 +11,9 @@
 
 ## 能力层级
 
-在本仓库制作或续作视频时，先读取 `skills/winter-video-agent/SKILL.md`。口播已接通数据驱动配方与公共执行、交付和清理入口；其余两条流程仍按文档规划，不能当成已实现能力。
+在本仓库制作或续作视频时，先读取 `skills/winter-video-agent/SKILL.md`。口播已接通三项原生 TalkCraft TSX 的试跑入口及既有数据驱动配方；完整自动口播和其余两条流程未接通，不能当成已实现能力。
 
-新口播设计使用 `brief → suggest → storyboard` 记录语义、参考选择与逐镜施工，再编译预览。Codex 负责判断与设计；候选的 ready/reference-only/remote-reference 状态须按真实适配范围使用，检索成功不算已观看成品。
+新口播设计使用 `brief → suggest → storyboard` 记录语义、参考选择与逐镜施工；原生 TalkCraft 使用自己的 SHOTBOOK 执行入口，既有配方按原入口编译。Codex 负责判断与设计；候选的 ready/native-ready/reference-only/remote-reference 状态须按真实适配范围使用，检索成功不算已观看成品。
 
 新制作优先继承对应上游的完整生产结构和原生镜头，具体见 [生产路由](docs/production-routing.md)。自有口播图层是已接通的执行能力，不代表已经继承 TalkCraft 完整流程；不得为适配它而把上游成熟镜头普遍重写为简化图层。
 

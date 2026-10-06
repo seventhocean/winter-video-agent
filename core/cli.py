@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from .project import digest, external, load, probe, read_json, save, write_json, project_lock
-from . import lifecycle, planning
+from . import lifecycle, planning, talkcraft
 from .reference_catalog import catalog, search
 
 
@@ -132,6 +132,8 @@ def legacy_preview(args):
 
 
 def preview(args):
+    if args.engine == 'talkcraft-native':
+        return talkcraft.render(args)
     if (external(args.project) / 'input/semantic-plan.json').is_file():
         if args.output and (Path(args.output).name != args.output or not args.output.endswith('.mp4')):
             raise ValueError('Output must be a simple .mp4 filename; use --version for semantic previews')
@@ -168,14 +170,20 @@ def main():
     sheet.add_argument('--init', action='store_true', help='Create an editable construction skeleton from the brief')
     sheet.add_argument('--check', action='store_true')
     prep = sub.add_parser('prepare'); prep.add_argument('project')
+    prep.add_argument('--engine', choices=['semantic', 'talkcraft-native'], default='semantic')
+    prep.add_argument('--runtime-root', help='External pinned TalkCraft npm runtime directory')
     prep.add_argument('--node'); prep.add_argument('--playwright-package'); prep.add_argument('--browser')
     prep.add_argument('--from-project', help='Reuse runtime settings from another external project')
     planned = sub.add_parser('plan'); planned.add_argument('project'); planned.add_argument('file', nargs='?')
     planned.add_argument('--check', action='store_true'); planned.add_argument('--compile', action='store_true')
     ren = sub.add_parser('preview'); ren.add_argument('project')
+    ren.add_argument('--engine', choices=['semantic', 'talkcraft-native'], default='semantic')
+    ren.add_argument('--native-plan', help='External native TalkCraft shotbook JSON')
     ren.add_argument('--output', help='Legacy filename or semantic version filename')
     ren.add_argument('--version'); ren.add_argument('--shot'); ren.add_argument('--at', type=float)
     full = sub.add_parser('render'); full.add_argument('project'); full.add_argument('--version')
+    full.add_argument('--engine', choices=['semantic', 'talkcraft-native'], default='semantic')
+    full.add_argument('--native-plan', help='External native TalkCraft shotbook JSON')
     checked = sub.add_parser('qa'); checked.add_argument('project'); checked.add_argument('artifact')
     reviewed = sub.add_parser('review'); reviewed.add_argument('project'); reviewed.add_argument('artifact')
     reviewed.add_argument('--verdict', required=True, choices=['approved', 'changes-requested'])
@@ -195,7 +203,8 @@ def main():
                 result['runtime'] = lifecycle.validate_runtime(lifecycle.runtime_for(external(args.project)))
             print(json.dumps(result, indent=2)); return 0 if all(result.values()) else 1
         actions = {'new': create, 'asset': asset, 'inspect': inspect, 'preview': preview,
-                   'prepare': lifecycle.prepare, 'plan': lifecycle.plan, 'render': lifecycle.render,
+                   'prepare': talkcraft.prepare if args.command == 'prepare' and args.engine == 'talkcraft-native' else lifecycle.prepare,
+                   'plan': lifecycle.plan, 'render': talkcraft.render if args.command == 'render' and args.engine == 'talkcraft-native' else lifecycle.render,
                    'qa': lifecycle.qa, 'review': lifecycle.review, 'deliver': lifecycle.deliver, 'clean': lifecycle.clean,
                    'brief': planning.brief, 'suggest': planning.candidates, 'storyboard': planning.storyboard}
         if args.command == 'asset':

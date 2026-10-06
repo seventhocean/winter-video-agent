@@ -142,6 +142,7 @@ def candidates(args):
             history.append(set(row.get('previously_selected', [])))
             results.append({'id': row['id'], 'mode': row['mode'], 'candidates': ranked[:args.top],
                             'ready_candidates': [c for c in ranked if c['availability'] == 'ready'][:args.top],
+                            'native_candidates': [c for c in ranked if c['availability'] == 'native-ready'][:args.top],
                             'rejected': rejected[:5],
                             'related_references': search(data, row.get('reference_query', ''), limit=4)['results'] if row.get('reference_query') else [],
                             'material_requests': row.get('material_requests', []),
