@@ -93,6 +93,10 @@ const Ph: React.FC<{ tone: number; src?: string; scale?: number }> = ({ tone, sr
 };
 
 const DEFAULT_LABELS = ["封面候选 ①", "封面候选 ②", "封面候选 ③ · 最终选它", "封面候选 ④"];
+// Latin names need less width than the same number of CJK characters. Keep
+// companion labels readable instead of shrinking "DJI Mimo" by raw length.
+const labelWidth = (label: string) => Array.from(label).reduce((sum, char) =>
+  sum + (/\s/.test(char) ? .3 : /[\x00-\x7f]/.test(char) ? .55 : 1), .7);
 
 type Props = {
   config?: Partial<typeof CONFIG>;
@@ -104,15 +108,22 @@ type Props = {
   srcs?: string[];
   /** 哪一格成为主角（0 起），默认 CONFIG.heroIdx = 2（第 3 格） */
   heroIdx?: number;
+  /** Optional sequential focus for a per-item walkthrough; others stay visible. */
+  focusIndices?: number[];
+  caption?: string;
 };
 
-export default function GridToHero({ labels, srcs, heroIdx = CONFIG.heroIdx, config = {}, background = "#ffffff", css = "" }: Props) {
+export default function GridToHero({ labels, srcs, heroIdx = CONFIG.heroIdx, focusIndices, caption, config = {}, background = "#ffffff", css = "" }: Props) {
   const t = useCurrentFrame() / FPS;
   const C = {...CONFIG, ...config};
   const T1 = C.lead + C.enterDur + C.stagger * (N - 1) + C.holdGrid;
-  const T2 = T1 + C.reflow + C.holdHero;
-  const T_OUT = T2 + C.reflow + C.holdBack;
-  const H = Math.max(0, Math.min(N - 1, Math.round(heroIdx)));
+  const cycleLength = C.reflow * 2 + C.holdHero;
+  const indices = focusIndices ?? [heroIdx];
+  const cycle = Math.max(0, Math.min(indices.length - 1, Math.floor((t - T1) / cycleLength)));
+  const focusAt = T1 + cycle * cycleLength;
+  const T2 = focusAt + C.reflow + C.holdHero;
+  const T_OUT = T1 + indices.length * cycleLength + C.holdBack;
+  const H = Math.max(0, Math.min(N - 1, Math.round(indices[cycle])));
   const lbs = (labels && labels.length >= N ? labels : DEFAULT_LABELS) as string[];
   const src = (i: number) => (srcs && srcs[i]) || undefined;
 
@@ -123,9 +134,9 @@ export default function GridToHero({ labels, srcs, heroIdx = CONFIG.heroIdx, con
     const k = i < H ? i : i - 1;
     return { x: C.col.x, y: C.hero.y + k * (C.col.h + C.col.gap), w: C.col.w, h: C.col.h };
   };
-  const p1 = tw(t, T1, C.reflow, power3InOut), p2 = tw(t, T2, C.reflow, power3InOut);
+  const p1 = tw(t, focusAt, C.reflow, power3InOut), p2 = tw(t, T2, C.reflow, power3InOut);
   // 主图内部缓推：T1 起匀速推到 1.05，T2 起收回
-  const heroPush = lerp(lerp(1, C.heroPush, tw(t, T1, C.reflow + C.holdHero, linear)), 1, tw(t, T2, C.reflow, power2InOut));
+  const heroPush = lerp(lerp(1, C.heroPush, tw(t, focusAt, C.reflow + C.holdHero, linear)), 1, tw(t, T2, C.reflow, power2InOut));
 
   return (
     <AbsoluteFill style={{ background, color: "#1d1d1f", overflow: "hidden", fontFamily: '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif' }}>
@@ -139,10 +150,13 @@ export default function GridToHero({ labels, srcs, heroIdx = CONFIG.heroIdx, con
           <div key={i} className="g2h-tile" style={{ width: r.w, height: r.h, opacity: op, zIndex: i === H ? 2 : 1,
             transform: `translate(${r.x}px, ${r.y + lerp(24, 0, e)}px) scale(${lerp(0.97, 1, e)})`, transformOrigin: "50% 50%" }}>
             <Ph tone={i + 1} src={src(i)} scale={i === H ? heroPush : 1} />
-            <div className="g2h-k">{lbs[i]}</div>
+            <div className="g2h-k" style={focusIndices ? {fontSize: Math.min(60, r.w / labelWidth(lbs[i]))} : undefined}>{lbs[i]}</div>
           </div>
         );
       })}
+      {caption && <div className="g2h-caption" style={{position: 'absolute', left: 0, right: 0,
+        bottom: 30, fontSize: 48, opacity: tw(t, C.lead, C.enterDur, power3Out) *
+          (1 - tw(t, T_OUT, C.exit, power2In))}}>{caption}</div>}
     </AbsoluteFill>
   );
 }

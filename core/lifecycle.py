@@ -191,6 +191,8 @@ def deliver(args):
         metadata = load(project)
         artifact = find_artifact(metadata, args.artifact)
         plan_key = 'native_plan' if artifact.get('engine') == 'talkcraft-native' else 'plan'
+        if artifact.get('composition', 'TalkCraftNative') != 'TalkCraftNative':
+            raise ValueError('Reference calibration previews cannot be delivered as production video')
         if artifact.get('plan_hash') != metadata.get(plan_key, {}).get('hash'):
             raise ValueError('Choose an artifact of the current registered plan')
         report = media_check(metadata, artifact)

@@ -5,12 +5,17 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 (async () => {
-  const [browser, output, at] = process.argv.slice(2);
+  const [browser, output, ...options] = process.argv.slice(2);
+  const at = options.find(option => !option.startsWith('--'));
+  const id = options.find(option => option.startsWith('--composition='))?.split('=')[1] || 'TalkCraftNative';
+  if (!['TalkCraftNative', 'OverlayOnly', 'ReferenceFrame', 'ReferenceComparison'].includes(id)) {
+    throw new Error('Unknown native composition');
+  }
   const serveUrl = await bundle({entryPoint: path.resolve('src/Root.tsx'),
     outDir: path.resolve('bundle'), publicDir: path.resolve('public'),
     symlinkPublicDir: true,
     onProgress: () => {}});
-  const composition = await selectComposition({serveUrl, id: 'TalkCraftNative', browserExecutable: browser});
+  const composition = await selectComposition({serveUrl, id, browserExecutable: browser});
   if (at !== undefined) {
     await renderStill({serveUrl, composition, output, frame: Number(at), browserExecutable: browser});
   } else {

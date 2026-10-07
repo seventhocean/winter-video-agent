@@ -1,0 +1,100 @@
+{
+  "implementation": "workflows/talking-head/native/Scenes.tsx",
+  "role": "Direct foreground scenes in the existing Remotion execution path; no style package or intermediate compiler",
+  "reference": {
+    "file": "SaveTik.co_7665543600142404864-hd.mp4",
+    "observed_sections": {
+      "identity-stack": "26–43s: chapter, name, sequential facts, attached evidence and action",
+      "metric-comparison": "43–58s: sampled counter, common-scale bars, conclusion and evidence",
+      "evidence-image": "28.125–28.5s: translation from the right and opacity entry",
+      "verdict-stamp": "255.125–255.875s: statement entry followed by large-to-small tilted stamp",
+      "development-time": "154.5–172.5s: 1 DAY headline held across three process nodes, May 14 / May 22 timeline, then 8 DAYS interval and group clear",
+      "database-relations": "194–210s: central database, two sequential five-item category groups, gray-to-green relationship state, quantification result, group clear across footage cuts",
+      "temperature-alert": "64–75s: established numbered chapter, 18→40°C sampled rise, clipped gradient reveal, threshold color, delayed risk, three manual response nodes, automated response and staged clear",
+      "metric-process": "4:3 reflow adaptation: confirmed metric counter and chapter hierarchy, genuine source, accumulated three-step process; narrow layout derived from actual presenter space rather than a new style"
+    },
+    "measurement_limits": "Counters follow observed samples. Development and category entries located at 4 fps; database connection state and temperature rise at 8 fps. Temperature range marker positions are schematic source placements, not a recovered metric axis. Fonts, colors and easing are reconstruction choices, not recovered author project parameters."
+  },
+  "adapted_code": [
+    {
+      "repository": "video-talkcraft",
+      "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+      "path": "template/cards/bar-chart-growth.tsx",
+      "part": "clamp01 and power3Out combined in progress(); frame-based fixed-scale growth",
+      "changes": "Horizontal bars on a transparent foreground; per-row speech timing; no demo host, background panel or decorative baseline; confirmed sampled counter shared between metric-comparison and metric-process, no duplicated curve"
+    },
+    {
+      "repository": "video-talkcraft",
+      "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+      "path": "template/cards/source-converge.tsx",
+      "part": "Cubic path construction and draw-on strokeDasharray / strokeDashoffset",
+      "changes": "Normalize length via SVG pathLength; fixed two-sided categories retained, gray connections switch to green, transparent containers; no packets, source swallowing or repeated pulse"
+    }
+  ],
+  "asset_sources": [
+    {
+      "role": "Process tractor and phone icons",
+      "repository": "https://github.com/lucide-icons/lucide",
+      "commit": "1fae58d0a9c661a338036838caf3399b5507bab6",
+      "paths": [
+        "icons/tractor.svg",
+        "icons/smartphone.svg"
+      ],
+      "changes": "Standalone icon color only; media and license stored in external project"
+    },
+    {
+      "role": "Codex process icon",
+      "repository": "video-talkcraft",
+      "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+      "path": "template/cards/chat-gpt.tsx",
+      "part": "Existing OpenAI simple-icons SVG path",
+      "changes": "Extracted into registered external SVG, no brand redraw"
+    },
+    {
+      "role": "Database relation and quantification icons",
+      "repository": "https://github.com/lucide-icons/lucide",
+      "commit": "1fae58d0a9c661a338036838caf3399b5507bab6",
+      "paths": [
+        "icons/land-plot.svg",
+        "icons/sprout.svg",
+        "icons/calendar-check.svg",
+        "icons/check-check.svg",
+        "icons/users.svg",
+        "icons/package.svg",
+        "icons/spray-can.svg",
+        "icons/flask-conical.svg",
+        "icons/warehouse.svg",
+        "icons/radio.svg",
+        "icons/database.svg",
+        "icons/gauge.svg"
+      ],
+      "changes": "Standalone SVG stroke variants only; paths unchanged; files, hashes and license in external project"
+    },
+    {
+      "role": "Temperature, risk and manual-response icons",
+      "repository": "https://github.com/lucide-icons/lucide",
+      "commit": "1fae58d0a9c661a338036838caf3399b5507bab6",
+      "paths": [
+        "icons/thermometer.svg",
+        "icons/skull.svg",
+        "icons/footprints.svg",
+        "icons/wind.svg"
+      ],
+      "changes": "Standalone SVG stroke color only; paths unchanged; files, hashes and license in external project"
+    }
+  ],
+  "reviewed_code": [
+    {
+      "repository": "anything2explainer",
+      "commit": "735c79c8724e897e8971cd59dde7e5aa11e4d6ce",
+      "path": "examples/rag/shots_src/G4/SC19.tsx",
+      "use": "Reviewed database, connection and state timing together; no query/permission scene copied"
+    },
+    {
+      "repository": "video-talkcraft",
+      "commit": "914103688cdec20ea35699f73b08e357a817c37a",
+      "path": "template/cards/ui-flow-theater.tsx",
+      "use": "Reviewed one STEPS time controlling related visual states. Temperature uses one sampled value for counter, reveal and limit color; no cursor or demo UI copied."
+    }
+  ]
+}

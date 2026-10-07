@@ -16,7 +16,7 @@
       "original_sha256": "e9e550223301f791e46e0afc60c5d1ab171fc777c81ca130b56ef2951cf389f4",
       "original_copy": "library/talkcraft-native/original/grid-to-hero.tsx",
       "adaptation": "library/talkcraft-native/cards/grid-to-hero.tsx",
-      "changes": "Expose config/background/CSS for per-episode timing and transparent overlay; preserve native animation calculations. Media demo supports real assets and disabling its demo presenter."
+      "changes": "Expose config/background/CSS for per-episode timing and transparent overlay; preserve native animation calculations. Media demo supports real assets and disabling its demo presenter. Optional focusIndices repeats the same native rectangle reflow for a per-item walkthrough; existing single-focus timing remains equivalent. Optional genuine-source caption and label sizing for small companion tiles. No new visual engine."
     },
     {
       "original_path": "template/cards/media-pop-in.tsx",

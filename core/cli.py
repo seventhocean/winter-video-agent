@@ -179,6 +179,9 @@ def main():
     ren = sub.add_parser('preview'); ren.add_argument('project')
     ren.add_argument('--engine', choices=['semantic', 'talkcraft-native'], default='semantic')
     ren.add_argument('--native-plan', help='External native TalkCraft shotbook JSON')
+    ren.add_argument('--studio', action='store_true', help='Prepare a native interactive instance without rendering')
+    ren.add_argument('--composition', choices=['TalkCraftNative', 'OverlayOnly', 'ReferenceFrame', 'ReferenceComparison'],
+                     default='TalkCraftNative', help='Native production or reference calibration composition')
     ren.add_argument('--output', help='Legacy filename or semantic version filename')
     ren.add_argument('--version'); ren.add_argument('--shot'); ren.add_argument('--at', type=float)
     full = sub.add_parser('render'); full.add_argument('project'); full.add_argument('--version')
@@ -193,6 +196,10 @@ def main():
     cleaned = sub.add_parser('clean'); cleaned.add_argument('project'); cleaned.add_argument('--apply', action='store_true')
     args = parser.parse_args()
     try:
+        if getattr(args, 'studio', False) and args.engine != 'talkcraft-native':
+            raise ValueError('--studio uses the existing native Remotion execution path')
+        if getattr(args, 'composition', 'TalkCraftNative') != 'TalkCraftNative' and args.engine != 'talkcraft-native':
+            raise ValueError('--composition uses the existing native Remotion execution path')
         if args.command == 'cards':
             print(json.dumps(search(catalog(), args.query, args.semantic, args.limit), ensure_ascii=False, indent=2)); return 0
         if args.command == 'suggest' and not 1 <= args.top <= 10:
